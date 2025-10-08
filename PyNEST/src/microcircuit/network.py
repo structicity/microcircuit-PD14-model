@@ -79,7 +79,7 @@ class Network:
         self.__derive_parameters()
 
         # initialize the NEST kernel
-        self.__setup_nest()
+        #self.__setup_nest()
 
     def create(self):
         """Creates all network nodes.
@@ -340,13 +340,13 @@ Storing simulation metadata to {self.sim_dict['data_path']}
         self.pops = []
         for i in np.arange(self.num_pops):
             population = nest.Create(self.net_dict["neuron_model"], self.num_neurons[i])
-
+            #TODO CHeck this removed
             population.set(
-                tau_syn_ex=self.net_dict["neuron_params"]["tau_syn"],
-                tau_syn_in=self.net_dict["neuron_params"]["tau_syn"],
+                #tau_syn_ex=self.net_dict["neuron_params"]["tau_syn"],
+                #tau_syn_in=self.net_dict["neuron_params"]["tau_syn"],
                 E_L=self.net_dict["neuron_params"]["E_L"],
                 V_th=self.net_dict["neuron_params"]["V_th"],
-                V_reset=self.net_dict["neuron_params"]["V_reset"],
+                #V_reset=self.net_dict["neuron_params"]["V_reset"],
                 t_ref=self.net_dict["neuron_params"]["t_ref"],
                 I_e=self.DC_amp[i],
             )
