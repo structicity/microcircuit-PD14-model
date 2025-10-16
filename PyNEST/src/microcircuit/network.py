@@ -115,7 +115,7 @@ class Network:
         we induce it here explicitly by calling ``nest.Prepare()``.
 
         """
-        self.__connect_neuronal_populations()
+        self.__connect_neuronal_populations() # connection 3
 
         if len(self.sim_dict["rec_dev"]) > 0:
             self.__connect_recording_devices()
@@ -124,7 +124,7 @@ class Network:
         if self.stim_dict["dc_transient"]:
             self.__connect_dc_stim_input()
         if self.stim_dict["thalamic_input"]:
-            self.__connect_thalamic_stim_input()
+            self.__connect_thalamic_stim_input() # connection 1 and 2
 
         nest.Prepare()
         nest.Cleanup()
@@ -389,7 +389,7 @@ Storing simulation metadata to {self.sim_dict['data_path']}
         if "spike_recorder" in self.sim_dict["rec_dev"]:
             if nest.Rank() == 0:
                 print("  Creating spike recorders.")
-            sd_dict = {"record_to": "ascii", "label": os.path.join(self.data_path, "spike_recorder")}
+            sd_dict = {"record_to": "ascii", "label": os.path.join(self.data_path, "sr_rec")}
             self.spike_recorders = nest.Create("spike_recorder", n=self.num_pops, params=sd_dict)
 
         if "voltmeter" in self.sim_dict["rec_dev"]:
@@ -398,8 +398,8 @@ Storing simulation metadata to {self.sim_dict['data_path']}
             vm_dict = {
                 "interval": self.sim_dict["rec_V_int"],
                 "record_to": "ascii",
-                "record_from": ["V_m"],
-                "label": os.path.join(self.data_path, "voltmeter"),
+                "record_from": ["V_m", "surrogate_gradient", "learning_signal"],
+                "label": os.path.join(self.data_path, "mm_rec"),
             }
             self.voltmeters = nest.Create("voltmeter", n=self.num_pops, params=vm_dict)
 
@@ -469,7 +469,7 @@ Storing simulation metadata to {self.sim_dict['data_path']}
         """Creates the recurrent connections between neuronal populations."""
         if nest.Rank() == 0:
             print("Connecting neuronal populations recurrently.")
-
+        # Connection 3
         for i, target_pop in enumerate(self.pops):
             for j, source_pop in enumerate(self.pops):
                 if self.num_synapses[i][j] >= 0.0:
@@ -539,10 +539,10 @@ Storing simulation metadata to {self.sim_dict['data_path']}
         if nest.Rank() == 0:
             print("Connecting thalamic input.")
 
-        # connect Poisson input to thalamic population
+        # connect Poisson input to thalamic population (Connection 1)
         nest.Connect(self.poisson_th, self.thalamic_population)
 
-        # connect thalamic population to neuronal populations
+        # connect thalamic population to neuronal populations (Connection 2)
         for i, target_pop in enumerate(self.pops):
             conn_dict_th = {"rule": "fixed_total_number", "N": self.num_th_synapses[i]}
 
