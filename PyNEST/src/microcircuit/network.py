@@ -200,14 +200,14 @@ Storing simulation metadata to {self.sim_dict['data_path']}
             print("Interval to plot spikes: {} ms".format(raster_plot_interval))
             helpers.plot_raster(
                 self.data_path,
-                "spike_recorder",
+                "sr",
                 raster_plot_interval[0],
                 raster_plot_interval[1],
                 self.net_dict["N_scaling"],
             )
 
             print("Interval to compute firing rates: {} ms".format(firing_rates_interval))
-            helpers.firing_rates(self.data_path, "spike_recorder", firing_rates_interval[0], firing_rates_interval[1])
+            helpers.firing_rates(self.data_path, "sr", firing_rates_interval[0], firing_rates_interval[1])
             helpers.boxplot(self.data_path, self.net_dict["populations"])
 
     def __derive_parameters(self):
