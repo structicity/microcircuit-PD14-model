@@ -305,7 +305,7 @@ Storing simulation metadata to {self.sim_dict['data_path']}
                 message += "\n  Weights and DC input are adjusted to compensate.\n"
             print(message)
 
-    def __setup_nest(self):
+    def setup_nest(self):
         """Initializes the NEST kernel.
 
         Reset the NEST kernel and pass parameters to it.
