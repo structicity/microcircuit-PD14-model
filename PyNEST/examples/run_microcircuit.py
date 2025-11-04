@@ -44,10 +44,9 @@ from microcircuit.stimulus_params import default_stim_dict as stim_dict
 scaling_factor = 0.2
 net_dict["N_scaling"] = scaling_factor
 net_dict["K_scaling"] = scaling_factor
-#net_dict["neuron_params"]["C_m"] = 250.0
 
 ## set path for storing spike data and figures
-sim_dict['data_path'] = 'data_scale_%.2f/' % scaling_factor
+sim_dict['data_path'] = 'records/data_scale_%.2f_orig2/' % scaling_factor
 
 sim_dict["overwrite_files"] = True
     
