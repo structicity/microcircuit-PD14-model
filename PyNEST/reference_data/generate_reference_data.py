@@ -22,9 +22,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 '''
-Microcircuit example (Potjans & Diesmann 2014)
-----------------------------------------------
-
 Example illustrating usage of the `microcircuit` python package.
 '''
 
@@ -41,17 +38,41 @@ from microcircuit.network_params import default_net_dict as net_dict
 from microcircuit.sim_params import default_sim_dict as sim_dict
 from microcircuit.stimulus_params import default_stim_dict as stim_dict
 
+## import analysis parameters
+from params import params as ref_dict
+
+from pathlib import Path
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+parser.add_argument("--seed", type=int, default=12345)
+parser.add_argument("--path", type=str, default="data")
+args = parser.parse_args()
+
+path = Path(args.path)
+sim_dict.update(
+        {
+            "data_path": str(path) + "/",
+            "rng_seed": args.seed,
+        }
+)
+
 #####################
 
 ## set network scale
-scaling_factor = 0.2
+scaling_factor = ref_dict['scaling_factor']
 net_dict["N_scaling"] = scaling_factor
 net_dict["K_scaling"] = scaling_factor
 
-## set path for storing spike data and figures
-sim_dict['data_path'] = 'records/data_scale_%.2f_orig2/' % scaling_factor
+## set pre-simulation time to 0 and desired simulation time
+sim_dict["t_presim"] = ref_dict["t_presim"]
+sim_dict["t_sim"] = ref_dict["t_sim"] # simulate for 10.0s
 
-sim_dict["overwrite_files"] = True
+## set number of local number of threads
+sim_dict["local_num_threads"] = ref_dict['local_num_threads']
+
+## set path for storing spike data and figures
+#sim_dict['data_path'] = 'data_scale_%.2f/' % scaling_factor
     
 def main():
 
@@ -60,7 +81,6 @@ def main():
 
     ## create instance of the network
     net = network.Network(sim_dict, net_dict, stim_dict)
-    net.setup_nest()
     time_network = time.time()
 
     ## create all nodes (neurons, devices)
@@ -79,13 +99,13 @@ def main():
     net.simulate(sim_dict["t_sim"])
     time_simulate = time.time()
 
-    ## store metadata
-    net.store_metadata()
-
     ## current memory consumption of the python process (in MB)
     import psutil
     mem = psutil.Process().memory_info().rss / (1024 * 1024)
-    
+    #TODO store benchmark data in store_metadata
+    #net.benchmark_data = {}
+    #net.benchmark_data['memory'] = mem
+
     #####################
     ## plot spikes and firing rate distribution
     print()
@@ -117,6 +137,8 @@ def main():
     print()
     print('##########################################')
     print()
+
+    net.store_metadata()
     
 #####################
 
