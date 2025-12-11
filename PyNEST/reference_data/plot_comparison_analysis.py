@@ -205,7 +205,7 @@ def main(data_paths, ref_dicts):
             **spkccs_fig_dict)
 
     folder_name = "-".join(list(map(lambda v: v.split("/")[-2], data_paths)))
-    store_path = f"./data/data_comparison/{folder_name}"
+    store_path = f"./data/data_comparison/{folder_name}/"
     if not os.path.exists(store_path):
         os.makedirs(store_path)
     for fig_dict, observable_name in [(rates_fig_dict, "rate"), (spkcsv_fig_dict, "spike_cvs"), (spkccs_fig_dict, "spike_ccs")]:
