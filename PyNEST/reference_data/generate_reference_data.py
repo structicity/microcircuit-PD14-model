@@ -44,8 +44,10 @@ sim_dict.update(
 
 #####################
 scaling_factor = ref_dict['scaling_factor']
+model_name = "eprop_iaf_psc_delta"
+#model_name = "iaf_psc_exp"
+
 duration_seq = 300
-model_eprop = "eprop_iaf_psc_delta"
 
 eprop_params = {
     "beta": 1.7,  # width scaling of the pseudo-derivative
@@ -72,10 +74,10 @@ eprop_params = {
 scale_factor = 1.0 - eprop_params["kappa"]  # factor for rescaling due to removal of irregular spike arrival
 eprop_params["c_reg"] /= scale_factor**2
 
-if model_eprop == "eprop_iaf_adapt":
+if model_name == "eprop_iaf_adapt":
     eprop_params["adapt_beta"] = 0.0  # adaptation scaling
 
-if model_eprop in ["eprop_iaf_psc_delta", "eprop_iaf_psc_delta_adapt"]:
+if model_name in ["eprop_iaf_psc_delta", "eprop_iaf_psc_delta_adapt"]:
     eprop_params["V_reset"] = -0.5  # mV, reset membrane voltage
     eprop_params["c_reg"] = 2.0 / duration_seq / scale_factor**2
     eprop_params["V_th"] = 0.5
@@ -83,11 +85,13 @@ if model_eprop in ["eprop_iaf_psc_delta", "eprop_iaf_psc_delta_adapt"]:
 ## set network scale
 net_dict["N_scaling"] = scaling_factor
 net_dict["K_scaling"] = scaling_factor
-net_dict["neuron_model"] = model_eprop
-net_dict["neuron_params"] = eprop_params
-net_dict["V0_type"] = "original"
-net_dict["PSP_exc_mean"] = 10
-net_dict["weight_rel_std"] = 10
+# We can comment the below code to use the default params
+if model_name == "eprop_iaf_psc_delta":
+    net_dict["neuron_model"] = model_name
+    net_dict["neuron_params"] = eprop_params
+    net_dict["V0_type"] = "original"
+    net_dict["PSP_exc_mean"] = 10
+    net_dict["weight_rel_std"] = 10
 
 ## set pre-simulation time to 0 and desired simulation time
 sim_dict["t_presim"] = ref_dict["t_presim"]
@@ -103,6 +107,7 @@ def main():
 
     ## create instance of the network
     net = network.Network(sim_dict, net_dict, stim_dict)
+    net.setup_nest()
     time_network = time.time()
 
     ## create all nodes (neurons, devices)
