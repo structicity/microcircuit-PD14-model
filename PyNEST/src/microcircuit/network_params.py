@@ -140,6 +140,21 @@ net_dict = {
         # refractory period of the neurons after a spike (in ms)
         "t_ref": 2.0,
     },
+    #(the first index corresponds to the targets
+    # and the second to the sources)
+    #["L23E", "L23I", "L4E", "L4I", "L5E", "L5I", "L6E", "L6I"]
+    "eprop_fraction": np.array(
+        [
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+        ]
+    )
 }
 
 # derive matrix of mean PSPs,
