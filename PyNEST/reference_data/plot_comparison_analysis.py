@@ -1,3 +1,4 @@
+import os
 from microcircuit import helpers
 
 from plot_reference_analysis import compute_data_dist
@@ -99,7 +100,7 @@ def plot_data_dists(
 
         # set x and y limits
         if observable_limits is not None:
-            ax_hist.set_xlim( observable_limits[0], observable_limits[1] )
+            #ax_hist.set_xlim( observable_limits[0], observable_limits[1] )
             ax_hist.set_xticks( [observable_limits[0], (observable_limits[0] + observable_limits[1]) / 2],
                               [r'$%.1f$' % observable_limits[0], r'$%.1f$' % ((observable_limits[0] + observable_limits[1]) / 2)] )
             if observable_name == 'spike_ccs':
@@ -107,13 +108,13 @@ def plot_data_dists(
                                   [r'$%.2f$' % (observable_limits[0]/2), r'$0$', r'$%.2f$' % (observable_limits[1]/2)] )
             
         else:
-            ax_hist.set_xlim( 0, x_max_hist )
+            #ax_hist.set_xlim( 0, x_max_hist )
             ax_hist.set_xticks([0, x_max_hist/2], [r'$0$', r'$%.0f$' % (x_max_hist/2)] )
             if observable_name == 'spike_ccs':
-                ax_hist.set_xlim(x_min_hist, x_max_hist)
+                #x_hist.set_xlim(x_min_hist, x_max_hist)
                 ax_hist.set_xticks([x_min_hist/2, 0, x_max_hist/2], [r'$%.2f$' % (x_min_hist/2), r'$0$', r'$%.2f$' % (x_max_hist/2)] )
 
-        ax_hist.set_ylim( 0, np.max( pop_mean_hist ) * 1.2 )
+        #ax_hist.set_ylim( 0, np.max( pop_mean_hist ) * 1.2 )
         
         ks_values = observable_ks_distances[pop]["list"]
         mean = std = None
@@ -143,21 +144,23 @@ def plot_data_dists(
         else:
             ax_hist.set_yticks( [] )
     
-    ax_ks.set_xlim( 0, ks_max * 1.1)
+    #ax_ks.set_xlim( 0, ks_max * 1.1)
     ax_ks.set_xticks( [0, ks_max / 2], [r'$0$', r'$%.2f$' % (ks_max / 2)] )
 
     fig_hist.text(0.5, -0.01, x_label, ha="center", va="center")
     #fig_hist.savefig(f'{data_path}{observable_name}_distributions.pdf',
     #             bbox_inches="tight", pad_inches=0.02)
     fig_ks.text(0.5, 0.0, r'KS-distance', ha="center", va="center")
-    """fig_ks.savefig(f'{data_path}{observable_name}_KS_distances.pdf',
+    """
+    fig_ks.savefig(f'{data_path}{observable_name}_KS_distances.pdf',
                bbox_inches="tight", pad_inches=0.02)
     
     # save figures for README.md
     fig_hist.savefig(f'figures/{observable_name}_distributions_T' + str( int( ref_dict['t_sim'] * 1.0e-3 ) ) + 's.png',
                  bbox_inches="tight", pad_inches=0.02)
     fig_ks.savefig(f'figures/{observable_name}_KS_distances_T' + str( int( ref_dict['t_sim'] * 1.0e-3 ) ) + 's.png',
-               bbox_inches="tight", pad_inches=0.02)"""
+               bbox_inches="tight", pad_inches=0.02)
+    """
 
 def create_fig():
     # plot of histograms for all populations
@@ -200,6 +203,18 @@ def main(data_paths, ref_dicts):
             **spkcsv_fig_dict )
         plot_data_dists( 'spike_ccs', r'\begin{center} spike correlation coefficient\\(bin size $%.1f$ ms) \end{center}' % ref_dict['binsize'], spike_ccs_hist_mat, spike_ccs_best_bins, spike_ccs_ks_distances, observable_limits=ref_dict['cc_lim'],
             **spkccs_fig_dict)
+
+    folder_name = "-".join(list(map(lambda v: v.split("/")[-2], data_paths)))
+    store_path = f"./data/data_comparison/{folder_name}/"
+    if not os.path.exists(store_path):
+        os.makedirs(store_path)
+    for fig_dict, observable_name in [(rates_fig_dict, "rate"), (spkcsv_fig_dict, "spike_cvs"), (spkccs_fig_dict, "spike_ccs")]:
+        fig_hist = fig_dict["fig_hist"]
+        fig_ks = fig_dict["fig_ks"]
+        fig_hist.savefig(f'{store_path}{observable_name}_distributions_comp.pdf',
+                    bbox_inches="tight", pad_inches=0.02)
+        fig_ks.savefig(f'{store_path}{observable_name}_KS_distances_comp.pdf',
+                bbox_inches="tight", pad_inches=0.02)
     plt.show()
 
     ## current memory consumption of the python process (in MB)
@@ -208,7 +223,7 @@ def main(data_paths, ref_dicts):
     print( f"Current memory consumption: {mem:.2f} MB" )
 
 if __name__ == "__main__":
-    data_paths = ["./data/data_T10s/", "./data/data_T10s/"]
+    data_paths = ["./data/data_T10s/", "./data/data_T10s_epropiafpscdelta/"]
     ref_dicts = [ref_dict, ref_dict]
     main(data_paths=data_paths, ref_dicts=ref_dicts)
     plt.show()

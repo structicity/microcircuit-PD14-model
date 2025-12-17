@@ -1,29 +1,16 @@
 # -*- coding: utf-8 -*-
 #
-# network.py
+# compute_ensemble_statistics.py
 #
-# This file is part of NEST.
-#
-# Copyright (C) 2004 The NEST Initiative
-#
-# NEST is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 2 of the License, or
-# (at your option) any later version.
-#
-# NEST is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+# This file is part of https://github.com/INM-6/microcircuit-PD14-model
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 #####################
+
 '''
-Compute and analyze ensemble statistics across seeds from reference data generated with generate_reference_data.py.
+Compute spike statistics across the ensemble of network realizations (RNG seeds)
+from the single-realization analysis performed with analyze_reference_data.py.
 '''
 
 import time
@@ -60,9 +47,9 @@ seeds = ref_dict['RNG_seeds'] # list of seeds
 
 sim_dict['data_path'] = 'data/data_T' + str( int( ref_dict['t_sim'] * 1.0e-3 ) ) + 's/'
 
-########################################################################################################################
-#                                   Define auxiliary functions to analyze and plot data                                #
-########################################################################################################################
+#######################################################
+# Define auxiliary functions to analyze and plot data #
+#######################################################
 def concatenate_data( observable_name: str ) -> dict:
     '''
     Concatenate data across different seeds.

@@ -23,16 +23,24 @@ Specifically, the model demonstrates that the observed cell-type and layer speci
 
 In recent years, the model became an established Computational Neuroscience benchmark for various soft- and hardware architectures ([van Albada et al., 2018](https://doi.org/10.3389/fnins.2018.00291); [Jordan et al., 2018](https://doi.org/10.3389/fninf.2018.00002); [Rhodes et al., 2020](https://doi.org/10.1098/rsta.2019.0160); [Dasbach et al., 2021](https://doi.org/10.3389/fnins.2021.757790); [Albers et al., 2022](https://doi.org/10.3389/fninf.2022.837549); [Kurth et al., 2022](https://doi.org/10.1088/2634-4386/ac55fc); [Heittmann et al., 2022](https://doi.org/10.3389/fnins.2021.728460); [Pronold et al., 2022](https://doi.org/10.3389/fninf.2021.785068); [Pronold et al., 2022](https://doi.org/10.1016/j.parco.2022.102952); [Golosio et al., 2023](https://doi.org/10.3390/app13179598); [Kauth et al., 2023](https://doi.org/10.3389/fncom.2023.1144143); [Schmidt et al., 2024](https://doi.org/10.48550/arXiv.2412.02619); [Senk et al., 2025](https://doi.org/10.48550/arXiv.2505.21185)).
 
+A community review ([Plesser et al., 2025](https://doi.org/10.1093/cercor/bhaf295)) prepared on the occassion of the 10th anniversary of the original publication of the model provides an historical account of the impact of the model.
+
 ## Model description
-A detailed mathematical, implementation agnostic description of the model and its parameters is provided [here](https://microcircuit-PD14-model.readthedocs.io/en/latest/model_description.html).
+[<img src="figures/modeldescription_icon.png" height="200"/>](https://microcircuit-pd14-model.readthedocs.io/en/latest/_static/microcircuit-pd14-model.pdf)
+
+<!-- https://microcircuit-PD14-model.readthedocs.io/en/latest/model_description.html -->
+
+A detailed mathematical, implementation-agnostic description of the model and its parameters
 
 ## Model implementations
+[<img src="figures/modelimplementation_icon.png" height="200"/>](https://microcircuit-PD14-model.readthedocs.io/en/latest/pynest_implementation.html)
 
-A PyNEST implementation in the form of a Python package is provided [here](https://microcircuit-PD14-model.readthedocs.io/en/latest/pynest_implementation.html).
+A PyNEST implementation in the form of a Python package
 
 ## Publications
-A list of studies citing and/or using the microcircuit model is provided [here](https://microcircuit-PD14-model.readthedocs.io/en/latest/publications/publications.html).
-Please contact us in case publications are missing from this list.
+[<img src="figures/publications_icon.png" height="200"/>](https://microcircuit-PD14-model.readthedocs.io/en/latest/publications/publications.html)
+
+List of studies citing and/or using the microcircuit model
 
 ## Repository contents
 
@@ -45,7 +53,7 @@ Please contact us in case publications are missing from this list.
 | [`PyNEST`](https://github.com/INM-6/microcircuit-PD14-model/blob/main/PyNEST) | PyNEST implementation (python package)|
 | &emsp;[`PyNEST/src/microcircuit`](https://github.com/INM-6/microcircuit-PD14-model/blob/main/PyNEST/src/microcircuit) | source code |
 | &emsp;[`PyNEST/examples`](https://github.com/INM-6/microcircuit-PD14-model/blob/main/PyNEST/examples) | examples illustrating usage of the python package |
-| &emsp;[`PyNEST/reference_data`](https://github.com/INM-6/microcircuit-PD14-model/blob/main/PyNEST/reference_data) | reference spike data |
+| &emsp;[`PyNEST/reference_data`](https://github.com/INM-6/microcircuit-PD14-model/blob/main/PyNEST/reference_data) | reference spike data (generation and verification) |
 | &emsp;[`PyNEST/tests`](https://github.com/INM-6/microcircuit-PD14-model/blob/main/PyNEST/tests) | unit tests |
 | [`figures`](https://github.com/INM-6/microcircuit-PD14-model/blob/main/figures) | overview figures |
 

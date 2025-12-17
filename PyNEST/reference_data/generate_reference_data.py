@@ -1,28 +1,13 @@
 # -*- coding: utf-8 -*-
 #
-# network.py
+# generate_reference_data.py
 #
-# This file is part of NEST.
-#
-# Copyright (C) 2004 The NEST Initiative
-#
-# NEST is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 2 of the License, or
-# (at your option) any later version.
-#
-# NEST is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with NEST.  If not, see <http://www.gnu.org/licenses/>.
+# This file is part of https://github.com/INM-6/microcircuit-PD14-model
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 '''
-Example illustrating usage of the `microcircuit` python package.
+Generation of reference data for the microcircuit model.
 '''
 
 #####################
@@ -71,9 +56,6 @@ sim_dict["t_sim"] = ref_dict["t_sim"] # simulate for 10.0s
 ## set number of local number of threads
 sim_dict["local_num_threads"] = ref_dict['local_num_threads']
 
-## set path for storing spike data and figures
-#sim_dict['data_path'] = 'data_scale_%.2f/' % scaling_factor
-    
 def main():
 
     ## start timer 
