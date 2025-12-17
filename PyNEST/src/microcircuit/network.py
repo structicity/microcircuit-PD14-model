@@ -493,10 +493,9 @@ Storing simulation metadata to {self.sim_dict['data_path']}
             for j, source_pop in enumerate(self.pops):
                 if self.num_synapses[i][j] >= 0.0:
                     eprop_fraction = self.net_dict["eprop_fraction"][i][j]
+
                     num_syn = np.round((1-eprop_fraction) * self.num_synapses[i][j]).astype(int)
                     num_syn_eprop = np.round(eprop_fraction * self.num_synapses[i][j]).astype(int)
-
-                    #print("KIE", self.num_synapses[i][j], num_syn, num_syn_eprop)
 
                     conn_dict_rec_static = {"rule": "fixed_total_number", "N": num_syn}
                     conn_dict_rec_eprop = {"rule": "fixed_total_number", "N": num_syn_eprop}
@@ -531,7 +530,7 @@ Storing simulation metadata to {self.sim_dict['data_path']}
                     }
                     
                     syn_dict_static = {**syn_dict, "synapse_model": "static_synapse"}
-                    syn_dict_eprop = {**syn_dict, "synapse_model": "eprop_synapse"}
+                    syn_dict_eprop = {**syn_dict, "synapse_model": "eprop_synapse", "delay": nest.resolution} #! Hard coded
 
                     if eprop_fraction < 1:
                         nest.Connect(source_pop, target_pop, conn_spec=conn_dict_rec_static, syn_spec=syn_dict_static)
