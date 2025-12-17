@@ -492,7 +492,14 @@ Storing simulation metadata to {self.sim_dict['data_path']}
         for i, target_pop in enumerate(self.pops):
             for j, source_pop in enumerate(self.pops):
                 if self.num_synapses[i][j] >= 0.0:
-                    conn_dict_rec = {"rule": "fixed_total_number", "N": self.num_synapses[i][j]}
+                    eprop_fraction = self.net_dict["eprop_fraction"][i][j]
+                    num_syn = np.round((1-eprop_fraction) * self.num_synapses[i][j]).astype(int)
+                    num_syn_eprop = np.round(eprop_fraction * self.num_synapses[i][j]).astype(int)
+
+                    #print("KIE", self.num_synapses[i][j], num_syn, num_syn_eprop)
+
+                    conn_dict_rec_static = {"rule": "fixed_total_number", "N": num_syn}
+                    conn_dict_rec_eprop = {"rule": "fixed_total_number", "N": num_syn_eprop}
 
                     if self.weight_matrix_mean[i][j] < 0:
                         w_min = -np.inf
@@ -502,7 +509,6 @@ Storing simulation metadata to {self.sim_dict['data_path']}
                         w_max = np.inf
 
                     syn_dict = {
-                        "synapse_model": "static_synapse",
                         "weight": nest.math.redraw(
                             nest.random.normal(
                                 mean=self.weight_matrix_mean[i][j],
@@ -523,8 +529,14 @@ Storing simulation metadata to {self.sim_dict['data_path']}
                             max=np.inf,
                         ),
                     }
+                    
+                    syn_dict_static = {**syn_dict, "synapse_model": "static_synapse"}
+                    syn_dict_eprop = {**syn_dict, "synapse_model": "eprop_synapse"}
 
-                    nest.Connect(source_pop, target_pop, conn_spec=conn_dict_rec, syn_spec=syn_dict)
+                    if eprop_fraction < 1:
+                        nest.Connect(source_pop, target_pop, conn_spec=conn_dict_rec_static, syn_spec=syn_dict_static)
+                    if eprop_fraction > 0:
+                        nest.Connect(source_pop, target_pop, conn_spec=conn_dict_rec_eprop, syn_spec=syn_dict_eprop)
 
     def __connect_recording_devices(self):
         """Connects the recording devices to the microcircuit."""
@@ -559,7 +571,7 @@ Storing simulation metadata to {self.sim_dict['data_path']}
             print("Connecting thalamic input.")
 
         # connect Poisson input to thalamic population (Connection 1)
-        nest.Connect(self.poisson_th, self.thalamic_population)
+        nest.Connect(self.poisson_th, self.thalamic_population) #(gen_spk_in, nrns_in)
 
         # connect thalamic population to neuronal populations (Connection 2)
         for i, target_pop in enumerate(self.pops):
