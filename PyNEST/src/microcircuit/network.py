@@ -232,11 +232,20 @@ Storing simulation metadata to {self.sim_dict['data_path']}
         #self.ext_indegrees = np.round((self.net_dict["K_ext"])).astype(int) # why scale external inputs?
 
         # conversion from PSPs to PSCs
-        PSC_over_PSP = helpers.postsynaptic_potential_to_current(
-            self.net_dict["neuron_params"]["C_m"],
-            self.net_dict["neuron_params"]["tau_m"],
-            self.net_dict["neuron_params"]["tau_syn"],
-        )
+        if "iaf_psc_exp" in self.net_dict["neuron_model"]:
+            PSC_over_PSP = helpers.postsynaptic_potential_to_current(
+                self.net_dict["neuron_params"]["C_m"],
+                self.net_dict["neuron_params"]["tau_m"],
+                self.net_dict["neuron_params"]["tau_syn"],
+            )
+        elif "iaf_psc_delta" in self.net_dict["neuron_model"]:
+            PSC_over_PSP = helpers.postsynaptic_potential_to_current_delta(
+                self.net_dict["neuron_params"]["C_m"],
+                self.net_dict["neuron_params"]["tau_m"],
+            )
+        else:
+            raise ValueError(f"{self.net_dict['neuron_model']} not implemented")
+        
         PSC_matrix_mean = self.net_dict["PSP_matrix_mean"] * PSC_over_PSP
         PSC_ext = self.net_dict["PSP_exc_mean"] * PSC_over_PSP
 
@@ -356,15 +365,15 @@ Storing simulation metadata to {self.sim_dict['data_path']}
                     E_L=self.net_dict["neuron_params"]["E_L"],
                     V_th=self.net_dict["neuron_params"]["V_th"],
                     V_reset=self.net_dict["neuron_params"]["V_reset"],
-                    t_ref=self.net_dict["neuron_params"]["t_ref"],
-                    beta=self.net_dict["neuron_params"]["t_ref"],
-                    c_reg=self.net_dict["neuron_params"]["c_reg"],
-                    eprop_isi_trace_cutoff=self.net_dict["neuron_params"]["eprop_isi_trace_cutoff"],
-                    f_target=self.net_dict["neuron_params"]["f_target"],
-                    gamma=self.net_dict["neuron_params"]["gamma"],
-                    kappa=self.net_dict["neuron_params"]["kappa"],
-                    kappa_reg=self.net_dict["neuron_params"]["kappa_reg"],
-                    surrogate_gradient_function=self.net_dict["neuron_params"]["surrogate_gradient_function"],
+                    #t_ref=self.net_dict["neuron_params"]["t_ref"],
+                    #beta=self.net_dict["neuron_params"]["t_ref"],
+                    #c_reg=self.net_dict["neuron_params"]["c_reg"],
+                    #eprop_isi_trace_cutoff=self.net_dict["neuron_params"]["eprop_isi_trace_cutoff"],
+                    #f_target=self.net_dict["neuron_params"]["f_target"],
+                    #gamma=self.net_dict["neuron_params"]["gamma"],
+                    #kappa=self.net_dict["neuron_params"]["kappa"],
+                    #kappa_reg=self.net_dict["neuron_params"]["kappa_reg"],
+                    #surrogate_gradient_function=self.net_dict["neuron_params"]["surrogate_gradient_function"],
                     I_e=self.DC_amp[i],
                 )
             else:
