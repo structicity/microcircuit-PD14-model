@@ -44,11 +44,15 @@ sim_dict.update(
 
 #####################
 scaling_factor = ref_dict['scaling_factor']
-model_name = "eprop_iaf_psc_delta"
-#model_name = "iaf_psc_exp"
+#model_name = "eprop_iaf_psc_delta"
+model_name = "iaf_psc_exp"
 
+## set network scale
+net_dict["N_scaling"] = scaling_factor
+net_dict["K_scaling"] = scaling_factor
+
+"""
 duration_seq = 300
-
 eprop_params = {
     "beta": 1.7,  # width scaling of the pseudo-derivative
     "C_m": 1.0,
@@ -66,9 +70,11 @@ eprop_params = {
     "tau_syn": 0.5, #! Added from microcircuit and used for calculate PSC
     "V_m": 0.0,
     "V_th": 0.6,  # mV, spike threshold membrane voltage
-    "V0_mean": {"original": 0.0, "optimized": [-68.28, -63.16, -63.33, -63.45, -63.11, -61.66, -66.72, -61.43]},
+    #"V0_mean": {"original": 0.0, "optimized": [-68.28, -63.16, -63.33, -63.45, -63.11, -61.66, -66.72, -61.43]},
+    "V0_mean": {"original": -58.0, "optimized": [-68.28, -63.16, -63.33, -63.45, -63.11, -61.66, -66.72, -61.43]},
     # standard deviation of the average membrane potential (in mV)
-    "V0_std": {"original": 0.8, "optimized": [5.36, 4.57, 4.74, 4.94, 4.94, 4.55, 5.46, 4.48]},
+    #"V0_std": {"original": 0.8, "optimized": [5.36, 4.57, 4.74, 4.94, 4.94, 4.55, 5.46, 4.48]},
+    "V0_std": {"original": 10.0, "optimized": [5.36, 4.57, 4.74, 4.94, 4.94, 4.55, 5.46, 4.48]},
 }
 
 scale_factor = 1.0 - eprop_params["kappa"]  # factor for rescaling due to removal of irregular spike arrival
@@ -80,18 +86,20 @@ if model_name == "eprop_iaf_adapt":
 if model_name in ["eprop_iaf_psc_delta", "eprop_iaf_psc_delta_adapt"]:
     eprop_params["V_reset"] = -0.5  # mV, reset membrane voltage
     eprop_params["c_reg"] = 2.0 / duration_seq / scale_factor**2
-    eprop_params["V_th"] = 0.5
+    eprop_params["V_th"] = 0.5"""
 
-## set network scale
-net_dict["N_scaling"] = scaling_factor
-net_dict["K_scaling"] = scaling_factor
 # We can comment the below code to use the default params
-if model_name == "eprop_iaf_psc_delta":
+if "iaf_psc_delta" in model_name:
+    neuron_params = {
+        "C_m": net_dict["neuron_params"]["C_m"],
+        "tau_m": net_dict["neuron_params"]["tau_m"],
+        "E_L": net_dict["neuron_params"]["E_L"],
+    }
     net_dict["neuron_model"] = model_name
-    net_dict["neuron_params"] = eprop_params
+    net_dict["neuron_params"] = neuron_params
     net_dict["V0_type"] = "original"
-    net_dict["PSP_exc_mean"] = 10
-    net_dict["weight_rel_std"] = 10
+    #net_dict["PSP_exc_mean"] = 0.15
+    #net_dict["weight_rel_std"] = 10
 
 ## set pre-simulation time to 0 and desired simulation time
 sim_dict["t_presim"] = ref_dict["t_presim"]
