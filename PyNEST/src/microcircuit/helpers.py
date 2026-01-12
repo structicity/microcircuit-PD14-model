@@ -118,6 +118,12 @@ def postsynaptic_potential_to_current(C_m, tau_m, tau_syn):
     PSC_over_PSP = 1.0 / (pre * (frac**tau_m - frac**tau_syn))
     return PSC_over_PSP
 
+def postsynaptic_potential_to_current_delta(C_m, tau_m):
+    r"""Computes a factor to convert postsynaptic potentials to currents
+    for delta synapses.
+    """
+    PSC_over_PSP = 1
+    return PSC_over_PSP
 
 def dc_input_compensating_poisson(bg_rate, K_ext, tau_syn, PSC_ext):
     """Computes DC input if no Poisson input is provided to the microcircuit.
