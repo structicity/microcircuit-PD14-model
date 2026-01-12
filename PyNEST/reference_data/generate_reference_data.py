@@ -45,7 +45,8 @@ sim_dict.update(
 #####################
 scaling_factor = ref_dict['scaling_factor']
 #model_name = "eprop_iaf_psc_delta"
-model_name = "iaf_psc_exp"
+#model_name = "iaf_psc_exp"
+model_name = "iaf_psc_delta"
 
 ## set network scale
 net_dict["N_scaling"] = scaling_factor
@@ -91,14 +92,19 @@ if model_name in ["eprop_iaf_psc_delta", "eprop_iaf_psc_delta_adapt"]:
 # We can comment the below code to use the default params
 if "iaf_psc_delta" in model_name:
     neuron_params = {
+        "E_L": net_dict["neuron_params"]["E_L"],
         "C_m": net_dict["neuron_params"]["C_m"],
         "tau_m": net_dict["neuron_params"]["tau_m"],
-        "E_L": net_dict["neuron_params"]["E_L"],
+        "V_th": net_dict["neuron_params"]["V_th"],
+        "V_reset": net_dict["neuron_params"]["V_reset"],
+        "V0_mean": net_dict["neuron_params"]["V0_mean"],
+        "V0_std": net_dict["neuron_params"]["V0_std"],
+        
     }
     net_dict["neuron_model"] = model_name
     net_dict["neuron_params"] = neuron_params
-    net_dict["V0_type"] = "original"
-    #net_dict["PSP_exc_mean"] = 0.15
+    net_dict["V0_type"] = "optimized"
+    net_dict["PSP_exc_mean"] = 0.17562
     #net_dict["weight_rel_std"] = 10
 
 ## set pre-simulation time to 0 and desired simulation time
