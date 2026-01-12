@@ -46,6 +46,7 @@ sim_dict.update(
         }
 )
 
+rec_label = "sr_rec"
 #####################
 populations = net_dict['populations'] # list of populations
 #####################
@@ -89,7 +90,8 @@ def analyze_single_neuron_stats( observable_name: str, func: callable ) -> dict:
     for pop in populations:
         observable[pop] = {}
 
-        label = 'spike_recorder-' + str( nodes['spike_recorder_%s' % pop][0] ) # label of spike recorder device
+        #label = 'spike_recorder-' + str( nodes['spike_recorder_%s' % pop][0] ) # label of spike recorder device
+        label = f'{rec_label}-' + str( nodes['spike_recorder_%s' % pop][0] ) # label of spike recorder device
         spikes = helpers.load_spike_data( data_path, label ) # load spike data for population
         observable[pop] = list( func( spikes, nodes[pop], recording_interval ) ) # compute single neuron statistic
 
@@ -127,7 +129,8 @@ def analyze_pairwise_stats( observable_name: str, func: callable ) -> dict:
         observable[pop] = {}
 
         pop_nodes = nodes[pop]  # list of neuron nodes for the population
-        label = 'spike_recorder-' + str( nodes['spike_recorder_%s' % pop][0] ) # label of spike recorder device
+        #label = 'spike_recorder-' + str( nodes['spike_recorder_%s' % pop][0] ) # label of spike recorder device
+        label = f'{rec_label}-' + str( nodes['spike_recorder_%s' % pop][0] ) # label of spike recorder device
         spikes = helpers.load_spike_data( data_path, label ) # load spike data for population
 
         # Generate random subsample of neuron nodes for the population for pairwise analysis (without replacement)
