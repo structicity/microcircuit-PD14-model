@@ -43,51 +43,14 @@ sim_dict.update(
 )
 
 #####################
-scaling_factor = ref_dict['scaling_factor']
-#model_name = "eprop_iaf_psc_delta"
 #model_name = "iaf_psc_exp"
-model_name = "iaf_psc_delta"
+#model_name = "iaf_psc_delta"
+model_name = "eprop_iaf_psc_delta"
 
 ## set network scale
+scaling_factor = ref_dict['scaling_factor']
 net_dict["N_scaling"] = scaling_factor
 net_dict["K_scaling"] = scaling_factor
-
-"""
-duration_seq = 300
-eprop_params = {
-    "beta": 1.7,  # width scaling of the pseudo-derivative
-    "C_m": 1.0,
-    "c_reg": 2.0 / duration_seq,  # coefficient of firing rate regularization
-    "E_L": 0.0,
-    "eprop_isi_trace_cutoff": 100,
-    "f_target": 10.0,  # spikes/s, target firing rate for firing rate regularization
-    "gamma": 0.5,  # height scaling of the pseudo-derivative
-    "I_e": 0.0,
-    "kappa": 0.99,  # low-pass filter of the eligibility trace
-    "kappa_reg": 0.99,  # low-pass filter of the firing rate for regularization
-    "surrogate_gradient_function": "piecewise_linear",  # surrogate gradient / pseudo-derivative function
-    "t_ref": 0.0,  # ms, duration of refractory period
-    "tau_m": 30.0,
-    "tau_syn": 0.5, #! Added from microcircuit and used for calculate PSC
-    "V_m": 0.0,
-    "V_th": 0.6,  # mV, spike threshold membrane voltage
-    #"V0_mean": {"original": 0.0, "optimized": [-68.28, -63.16, -63.33, -63.45, -63.11, -61.66, -66.72, -61.43]},
-    "V0_mean": {"original": -58.0, "optimized": [-68.28, -63.16, -63.33, -63.45, -63.11, -61.66, -66.72, -61.43]},
-    # standard deviation of the average membrane potential (in mV)
-    #"V0_std": {"original": 0.8, "optimized": [5.36, 4.57, 4.74, 4.94, 4.94, 4.55, 5.46, 4.48]},
-    "V0_std": {"original": 10.0, "optimized": [5.36, 4.57, 4.74, 4.94, 4.94, 4.55, 5.46, 4.48]},
-}
-
-scale_factor = 1.0 - eprop_params["kappa"]  # factor for rescaling due to removal of irregular spike arrival
-eprop_params["c_reg"] /= scale_factor**2
-
-if model_name == "eprop_iaf_adapt":
-    eprop_params["adapt_beta"] = 0.0  # adaptation scaling
-
-if model_name in ["eprop_iaf_psc_delta", "eprop_iaf_psc_delta_adapt"]:
-    eprop_params["V_reset"] = -0.5  # mV, reset membrane voltage
-    eprop_params["c_reg"] = 2.0 / duration_seq / scale_factor**2
-    eprop_params["V_th"] = 0.5"""
 
 # We can comment the below code to use the default params
 if "iaf_psc_delta" in model_name:
@@ -99,13 +62,43 @@ if "iaf_psc_delta" in model_name:
         "V_reset": net_dict["neuron_params"]["V_reset"],
         "V0_mean": net_dict["neuron_params"]["V0_mean"],
         "V0_std": net_dict["neuron_params"]["V0_std"],
-        
     }
+    if "eprop" in model_name:
+        duration_seq = 300
+        eprop_params = {
+            "beta": 1.7,  # width scaling of the pseudo-derivative
+            #?"C_m": 1.0,
+            "c_reg": 2.0 / duration_seq,  # coefficient of firing rate regularization
+            #?"E_L": 0.0,
+            "eprop_isi_trace_cutoff": 100,
+            "f_target": 10.0,  # spikes/s, target firing rate for firing rate regularization
+            "gamma": 0.5,  # height scaling of the pseudo-derivative
+            "I_e": 0.0,
+            "kappa": 0.99,  # low-pass filter of the eligibility trace
+            "kappa_reg": 0.99,  # low-pass filter of the firing rate for regularization
+            "surrogate_gradient_function": "piecewise_linear",  # surrogate gradient / pseudo-derivative function
+            "t_ref": 0.0,  # ms, duration of refractory period
+            #?"tau_m": 30.0,
+            #?"V_m": 0.0,
+            #?"V_th": 0.6,  # mV, spike threshold membrane voltage
+        }
+
+        scale_factor = 1.0 - eprop_params["kappa"]  # factor for rescaling due to removal of irregular spike arrival
+        eprop_params["c_reg"] /= scale_factor**2
+
+        #if model_name == "eprop_iaf_adapt":
+        #    eprop_params["adapt_beta"] = 0.0  # adaptation scaling
+
+        if model_name in ["eprop_iaf_psc_delta", "eprop_iaf_psc_delta_adapt"]:
+            #?eprop_params["V_reset"] = -0.5  # mV, reset membrane voltage
+            eprop_params["c_reg"] = 2.0 / duration_seq / scale_factor**2
+            #?eprop_params["V_th"] = 0.5
+        neuron_params = {**neuron_params, **eprop_params}
+
     net_dict["neuron_model"] = model_name
     net_dict["neuron_params"] = neuron_params
     net_dict["V0_type"] = "optimized"
     net_dict["PSP_exc_mean"] = 0.17562
-    #net_dict["weight_rel_std"] = 10
 
 ## set pre-simulation time to 0 and desired simulation time
 sim_dict["t_presim"] = ref_dict["t_presim"]
