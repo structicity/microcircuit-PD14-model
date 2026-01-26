@@ -350,7 +350,7 @@ Storing simulation metadata to {self.sim_dict['data_path']}
         self.pops = []
         for i in np.arange(self.num_pops):
             population = nest.Create(self.net_dict["neuron_model"], self.num_neurons[i])
-            if "iaf_psc_exp" in self.net_dict["neuron_model"]:
+            if "iaf_psc_exp" == self.net_dict["neuron_model"]:
                 population.set(
                     tau_syn_ex=self.net_dict["neuron_params"]["tau_syn"],
                     tau_syn_in=self.net_dict["neuron_params"]["tau_syn"],
@@ -360,20 +360,27 @@ Storing simulation metadata to {self.sim_dict['data_path']}
                     t_ref=self.net_dict["neuron_params"]["t_ref"],
                     I_e=self.DC_amp[i],
                 )
-            elif "iaf_psc_delta" in self.net_dict["neuron_model"]:
+            elif "iaf_psc_delta" == self.net_dict["neuron_model"]:
                 population.set(
                     E_L=self.net_dict["neuron_params"]["E_L"],
                     V_th=self.net_dict["neuron_params"]["V_th"],
                     V_reset=self.net_dict["neuron_params"]["V_reset"],
-                    #t_ref=self.net_dict["neuron_params"]["t_ref"],
-                    #beta=self.net_dict["neuron_params"]["t_ref"],
-                    #c_reg=self.net_dict["neuron_params"]["c_reg"],
-                    #eprop_isi_trace_cutoff=self.net_dict["neuron_params"]["eprop_isi_trace_cutoff"],
-                    #f_target=self.net_dict["neuron_params"]["f_target"],
-                    #gamma=self.net_dict["neuron_params"]["gamma"],
-                    #kappa=self.net_dict["neuron_params"]["kappa"],
-                    #kappa_reg=self.net_dict["neuron_params"]["kappa_reg"],
-                    #surrogate_gradient_function=self.net_dict["neuron_params"]["surrogate_gradient_function"],
+                    I_e=self.DC_amp[i],
+                )
+            elif "eprop_iaf_psc_delta" == self.net_dict["neuron_model"]:
+                population.set(
+                    E_L=self.net_dict["neuron_params"]["E_L"],
+                    V_th=self.net_dict["neuron_params"]["V_th"],
+                    V_reset=self.net_dict["neuron_params"]["V_reset"],
+                    beta=self.net_dict["neuron_params"]["t_ref"],
+                    c_reg=self.net_dict["neuron_params"]["c_reg"],
+                    eprop_isi_trace_cutoff=self.net_dict["neuron_params"]["eprop_isi_trace_cutoff"],
+                    f_target=self.net_dict["neuron_params"]["f_target"],
+                    gamma=self.net_dict["neuron_params"]["gamma"],
+                    kappa=self.net_dict["neuron_params"]["kappa"],
+                    kappa_reg=self.net_dict["neuron_params"]["kappa_reg"],
+                    surrogate_gradient_function=self.net_dict["neuron_params"]["surrogate_gradient_function"],
+                    t_ref=self.net_dict["neuron_params"]["t_ref"],
                     I_e=self.DC_amp[i],
                 )
             else:
@@ -423,10 +430,13 @@ Storing simulation metadata to {self.sim_dict['data_path']}
         if "voltmeter" in self.sim_dict["rec_dev"]:
             if nest.Rank() == 0:
                 print("  Creating voltmeters.")
+            record_from = ["V_m"]
+            if "eprop" in self.net_dict["neuron_model"]:
+                record_from += ["surrogate_gradient", "learning_signal"]
             vm_dict = {
                 "interval": self.sim_dict["rec_V_int"],
                 "record_to": "ascii",
-                "record_from": ["V_m", "surrogate_gradient", "learning_signal"],
+                "record_from": record_from,
                 "label": os.path.join(self.data_path, "mm_rec"),
             }
             self.voltmeters = nest.Create("voltmeter", n=self.num_pops, params=vm_dict)
