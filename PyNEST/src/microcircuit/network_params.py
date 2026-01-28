@@ -104,7 +104,7 @@ net_dict = {
     # inhibitory connections
     "delay_rel_std": 0.5,
     # type of constant background (cortico-cortical) input
-    "bg_input_type": "dc", # 'poisson' or 'dc'
+    "bg_input_type": "poisson", # 'poisson' or 'dc'
     # indegree of external connections to the different populations (same order
     # as in 'populations')
     "K_ext": np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100]),
@@ -142,18 +142,17 @@ net_dict = {
     },
     #(the first index corresponds to the targets
     # and the second to the sources)
-    #["L23E", "L23I", "L4E", "L4I", "L5E", "L5I", "L6E", "L6I"]
     "eprop_fraction": np.array(
-        [
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-            [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-        ]
+        [# "L23E", "L23I", "L4E", "L4I", "L5E", "L5I", "L6E", "L6I"
+            [0.0,   0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0], #"L23E"
+            [0.0,   0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0], #"L23I"
+            [0.0,   0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0], #"L4E"
+            [0.0,   0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0], #"L4I" 
+            [0.0,   0.0,    0.0,   0.0,   0.1,   0.0,   0.0,   0.0], #"L5E"
+            [0.0,   0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0], #"L5I"
+            [0.0,   0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0], #"L6E"
+            [0.0,   0.0,    0.0,   0.0,   0.0,   0.0,   0.0,   0.0], #"L6I"
+        ] 
     )
 }
 
