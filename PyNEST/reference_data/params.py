@@ -16,8 +16,8 @@ params = {
     # Adapted model and simulation parameters
     #########################
     # scaling factor of the network
-    'scaling_factor': 0.2,
-    #'scaling_factor': 1.0,    
+    #'scaling_factor': 0.2,
+    'scaling_factor': 1.0,    
     # RNG seeds for generating model relizations
     'RNG_seeds': ['12345' + str(i) for i in range(0, 10)],
     # pre-simulation time (for network stabilization) in ms

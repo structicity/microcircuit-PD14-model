@@ -223,7 +223,7 @@ def main(data_paths, ref_dicts):
     print( f"Current memory consumption: {mem:.2f} MB" )
 
 if __name__ == "__main__":
-    data_paths = ["./data/data_T10s/", "./data/data_T10s_epropiafpscdelta/"]
+    data_paths = ["./data/data_T10s/", "./data/data_T10s_iafpscdelta/"]
     ref_dicts = [ref_dict, ref_dict]
     main(data_paths=data_paths, ref_dicts=ref_dicts)
     plt.show()
