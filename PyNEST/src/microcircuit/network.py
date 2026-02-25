@@ -117,7 +117,7 @@ class Network:
         """
         self.__connect_neuronal_populations() # connection 3
 
-        if len(self.sim_dict["rec_dev"]) > 0 and self.sim_dict["con_dev"]:
+        if len(self.sim_dict["rec_dev"]) > 0:
             self.__connect_recording_devices()
         if self.net_dict["bg_input_type"] == "poisson":
             self.__connect_poisson_bg_input()
