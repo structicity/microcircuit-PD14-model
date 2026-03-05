@@ -56,9 +56,9 @@ except Exception as e:
 
 try:
     # Import and run visulize performance script
-    from benchmarking._scripts.visualize_performance import main as charts_main
+    from benchmarking._scripts.visualize_performance import main as visualize_main
     print("Running visualize_performance.py...")
-    charts_main()
+    visualize_main()
 except Exception as e:
     print(f"Warning: Could not run visualize_performance.py: {e}")
 

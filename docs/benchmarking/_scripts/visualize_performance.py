@@ -8,9 +8,11 @@ from matplotlib.ticker import MaxNLocator
 import pandas as pd
 import yaml
 
+__all__ = ['read_data', 'export_latex', 'performance_summary_manuscript', 'quantity_vs_year', 'rtf_vs_energy', 'rtf_vs_processnode']
+
+
 # https://personal.sron.nl/~pault/
 import tol_colors
-
 # matplotlib.rc('text', usetex=True)
 plt.rcParams.update(
     {
@@ -566,9 +568,6 @@ def add_label(ax, label, offset=[0, 0], weight="bold", fontsize_scale=1.2):
 
 
 if __name__ == "__main__":
-
     perf_data = read_data("performance_data_raw.yaml")
-
     export_latex(perf_data)
-
     performance_summary_manuscript(perf_data)
