@@ -476,7 +476,10 @@ def rtf_vs_processnode(
 
 
 def read_data(filename):
-    with open(filename, "r") as stream:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(script_dir, filename)
+
+    with open(file_path, "r") as stream:
         data = yaml.safe_load(stream)
 
     rows = []
