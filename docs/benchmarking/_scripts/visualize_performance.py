@@ -153,14 +153,14 @@ def performance_summary_manuscript(data):
 
     ax1 = plt.subplot(gs[1])
     add_label(ax1, "b")
-    rtf_vs_energy(perf_data, legend=False, axis=ax1)
+    rtf_vs_energy(data, legend=False, axis=ax1)
     ax1.spines[["right", "top"]].set_visible(False)
     ax1.set_yticklabels([])
     ax1.set_ylabel("")
 
     ax2 = plt.subplot(gs[2])
     add_label(ax2, "c")
-    rtf_vs_processnode(perf_data, legend=False, axis=ax2)
+    rtf_vs_processnode(data, legend=False, axis=ax2)
     ax2.spines[["right", "top"]].set_visible(False)
     ax2.set_yticklabels([])
     ax2.set_ylabel("")
@@ -579,3 +579,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
