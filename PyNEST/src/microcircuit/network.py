@@ -256,9 +256,16 @@ Storing simulation metadata to {self.sim_dict['data_path']}
         elif self.net_dict["bg_input_type"] == "dc":
             #if nest.Rank() == 0: # default case should not raise a warning
                 #warnings.warn("DC input created to compensate missing Poisson input.\n")
-            DC_amp = helpers.dc_input_compensating_poisson(
-                self.net_dict["bg_rate"], self.net_dict["K_ext"], self.net_dict["neuron_params"]["tau_syn"], PSC_ext
-            )
+            if "iaf_psc_exp" in self.net_dict["neuron_model"]:
+                DC_amp = helpers.dc_input_compensating_poisson(
+                    self.net_dict["bg_rate"], self.net_dict["K_ext"], self.net_dict["neuron_params"]["tau_syn"], PSC_ext
+                )
+            elif "iaf_psc_delta" in self.net_dict["neuron_model"]:
+                DC_amp = helpers.dc_input_compensating_poisson_delta(
+                    self.net_dict["bg_rate"], self.net_dict["K_ext"], self.net_dict["neuron_params"]["C_m"], PSC_ext
+                )
+            else:
+                raise ValueError(f"{self.net_dict['neuron_model']} not implemented")
 
         # adjust weights and DC amplitude if the indegree is scaled
         if self.net_dict["K_scaling"] != 1:
