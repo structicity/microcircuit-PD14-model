@@ -148,6 +148,27 @@ def dc_input_compensating_poisson(bg_rate, K_ext, tau_syn, PSC_ext):
     DC = bg_rate * K_ext * PSC_ext * tau_syn * 0.001
     return DC
 
+def dc_input_compensating_poisson_delta(bg_rate, K_ext, C_m, PSC_ext):
+    """Computes DC input if no Poisson input is provided to the microcircuit.
+
+    Parameters
+    ----------
+    bg_rate
+        Rate of external Poisson generators (in spikes/s).
+    K_ext
+        External indegrees.
+    tau_syn
+        Synaptic time constant (in ms).
+    PSC_ext
+        Weight of external connections (in pA).
+
+    Returns
+    -------
+    DC
+        DC input (in pA) which compensates lacking Poisson input.
+    """
+    DC = bg_rate * K_ext * PSC_ext * C_m * 0.001
+    return DC
 
 def adjust_weights_and_input_to_synapse_scaling(
     full_num_neurons,
