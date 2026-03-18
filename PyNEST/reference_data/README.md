@@ -40,11 +40,22 @@ These KS scores quantify the natural variability intrinsic to the model, and are
 For further details, see [(Dasbach et al., 2021)](https://doi.org/10.3389/fnins.2021.757790).
 
 This second step of the analysis, the quantification of the ensemble statistis, is implemented in [compute_ensemble_stats.py](compute_ensemble_stats.py).
+
+Usage:
+```bash
+python compute_ensemble_stats.py
+```
+
 The script assumes that the data is organized as described below in section "Sets of simulated and analyzed reference data".
 
 ## Data visualization
 
 The script [plot_reference_analysis.py](plot_reference_analysis.py) visualizes the statistics extracted by [`analyze_reference_data.py`](analyze_reference_data.py) and [compute_ensemble_stats.py](compute_ensemble_stats.py), and produces the figures below.
+
+Usage:
+```bash
+python plot_reference_analysis.py
+```
 
 |firing rate | spike irregularity | spike correlation |
 |--|--|--|
@@ -58,6 +69,19 @@ Distributions of the time averaged single-neuron firing rates (left), the coeffi
 
 Distributions of Kolmogorov–Smirnov (KS) scores across pairs of network realizations for each spike statistics (firing rates, ISI CVs and spike correlations) and each neuronal population of the microcircuit model (simulation time $`T = 15`$min).
 Red and blue vertical lines depict average KS scores $`D_\text{KS}`$ and standard deviations across pairs of network realizations.
+
+## Snakemake workflow for local running
+
+To test the analysis workflow, the [Snakefile](./Snakefile) defines a set of rules that run the complete analysis in a hierarchical manner.
+
+Usage:
+```bash
+snakemake -j <num_cores>
+```
+The rule ```test_generate_reference_data``` generates a test data set and, upon successful completion of the simulations, creates the temporary file ```./data/data_T<sim_time_in_s>s/seed-<RNGseed>/raw.done```.
+The rule ```test_analyze_reference_data``` uses this file as input to perform the single-realization analysis described in [sec. 3](#single-network-realization) for each simulation in the test dataset. When the analysis is complete, it produces the temporary file ```./data/data_T<sim_time_in_s>s/seed-<RNGseed>/analysis.done```.
+This file is then used as input for the rule ```test_compute_ensemble_statistics```, which computes the ensemble statistics as described in [sec. 4](#ensemble-of-network-realizations). Upon completion, it generates ```./data/data_T<sim_time_in_s>s/seed-<RNGseed>/ensemble_statistics.done```. 
+Finally, the rule ```test_plot_reference_analysis``` takes this file as input and generates the plots, along with the file ```plots.done```. If plots are generated correctly, the test is marked as successful.
 
 ## Example of a cluster submission workflow
 
@@ -73,7 +97,7 @@ Note that these examples are user and system specific and need to be adapted to 
 
 ## Sets of simulated and analyzed reference data
 
-For convenience, we provide sets of simulated and ananlyzed reference data for different simulation times and network realizations (RNG seeds) at [Zenodo](TODO:AddLinkToZenodo).
+For convenience, we provide sets of simulated and ananlyzed reference data for different simulation times and network realizations (RNG seeds) at [Zenodo](https://doi.org/10.5281/zenodo.18957278).
 
 The spike data is stored in text files `data_T<sim_time_in_s>s/seed-<RNGseed>/spike_recorder-<rec-id>-<thread-id>.dat` (1st column: neuron ID, 2nd column: spike time in ms).
 Here, `<sim_time_in_s>` refers to the simulation time in seconds, `<RNGseed>` to the random number generator seed used to generate a specific realization of the model, `<rec-id>` to the population specific spike-recorder ID, and `<thread-id>` to the thread ID.

@@ -21,17 +21,48 @@ We recommend installing the python package inside a python environment:
   pip install -U pip
   ```
 
-The `microcircuit` python package can be installed by 
-  ```bash
-  git clone https://github.com/inm-6/microcircuit-PD14-model
-  pip install microcircuit-PD14-model/PyNEST
-  ```
-  
-or, without cloning the entire repository, by
+The `microcircuit` python package can be installed by one of the following methods:
 
+1) Install the package directly from PyPI:
+    ```bash
+    pip install microcircuit
+    ```
+
+3) Clone the repository and install the python package from the local sources:
+   ```bash
+    git clone https://github.com/inm-6/microcircuit-PD14-model
+    pip install microcircuit-PD14-model/PyNEST
+    ```
+  
+6) Install the package from the repository without cloning the entire repository:
+    ```
+    pip install "git+https://github.com/INM-6/microcircuit-PD14-model.git/#egg=microcircuit&subdirectory=PyNEST"
+    ```
+
+## Software requirements
+
+- NEST (see [NEST installation](https://nest-simulator.readthedocs.io/en/stable/installation))
+
+  We recommend installing NEST locally within the virtual environment:
+  ```bash
+  git clone https://github.com/nest/nest-simulator
+  ## for a specific <VERSION> (e.g. <VERSION>=v3.9), use
+  ## git clone --depth 1 --branch <VERSION> https://github.com/nest/nest-simulator
+  cd nest-simulator
+  mkdir build
+  cd build
+  pip install -r ../requirements_pynest.txt
+  cmake ..
+  make
+  make install
   ```
+<<<<<<< HEAD
   pip install "git+https://github.com/INM-6/microcircuit-PD14-model.git/#egg=microcircuit&subdirectory=PyNEST"
   ```
+=======
+- Python 3.x
+- docopt-ng, matplotlib, numpy, psutil, ruamel.yaml, scipy (handled by python package dependencies)
+>>>>>>> upstream/main
 
 ## Software requirements
 
@@ -69,7 +100,11 @@ After installation, the `microcircuit` python package can be imported in a pytho
 import microcircuit
 ```
 
+<<<<<<< HEAD
 See [this example](https://microcircuit-PD14-model.readthedocs.io/en/latest/auto_examples/index.html) for a more detailed illustration of how the package can be used.
+=======
+See [this examples](https://microcircuit-pd14-model.readthedocs.io/en/latest/microcircuit_example.html) for a more detailed illustrations of how the package can be used.
+>>>>>>> upstream/main
 
 ## Memory requirements
 
@@ -89,7 +124,7 @@ This implementation uses the [`iaf_psc_exp`](https://nest-simulator.org/document
 The network is connected according to the [`fixed_total_number`](https://nest-simulator.org/documentation/synapses/connectivity_concepts.html#random-fixed-total-number) connection rule in NEST. 
 The neuron dynamics is integrated in a time-driven manner using exact integration with a simulation step size `sim_resolution` [(Rotter & Diesmann, 1999)][1].
 
-The PyNEST implementation runs with [NEST 3.6](https://github.com/nest/nest-simulator.git) [(Villamar et al., 2023)][2].
+The PyNEST implementation runs with [NEST 3.9](https://github.com/nest/nest-simulator.git) [(Terhorst et al., 2025)][2].
 
 ### Simulation parameters (defaults)
 
@@ -105,8 +140,8 @@ The PyNEST implementation runs with [NEST 3.6](https://github.com/nest/nest-simu
 [1]: <https://doi.org/10.1007/s004220050570> "Rotter & Diesmann (1999). Exact digital simulation of time-invariant linear systems with applications to neuronal modeling. Biological Cybernetics 81(5-6):381-402. doi:10.1007/s004220050570"
 [Rotter & Diesmann (1999), Exact digital simulation of time-invariant linear systems with applications to neuronal modeling. Biological Cybernetics 81(5-6):381-402. doi:10.1007/s004220050570](https://doi.org/10.1007/s004220050570)
 
-[2]: <https://doi.org/10.5281/zenodo.8344932> "Villamar et al. (2023). NEST 3.6 (3.6). Zenodo. doi:10.5281/zenodo.8344932"
-[Villamar et al. (2023), NEST 3.6 (3.6). Zenodo. doi:10.5281/zenodo.8344932](https://doi.org/10.5281/zenodo.8344932)
+[2]: <https://doi.org/10.5281/zenodo.17036827> "Terhorst et al. (2025). NEST 3.9. Zenodo. doi:10.5281/zenodo.17036827"
+[Terhorst et al. (2025). NEST 3.9. Zenodo. doi:10.5281/zenodo.17036827](https://doi.org/10.5281/zenodo.17036827)
 
 License
 -------
