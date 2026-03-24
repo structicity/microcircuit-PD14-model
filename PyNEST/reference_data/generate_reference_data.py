@@ -53,6 +53,10 @@ net_dict["N_scaling"] = scaling_factor
 net_dict["K_scaling"] = scaling_factor
 
 # We can comment the below code to use the default params
+if "iaf_psc_exp" in model_name:
+    params_nrn_rec = net_dict["neuron_params"]
+    PSP_exc_mean = net_dict["PSP_exc_mean"]
+
 if "iaf_psc_delta" in model_name:
     neuron_params = {
         "E_L": net_dict["neuron_params"]["E_L"],
@@ -63,6 +67,8 @@ if "iaf_psc_delta" in model_name:
         "V0_mean": net_dict["neuron_params"]["V0_mean"],
         "V0_std": net_dict["neuron_params"]["V0_std"],
     }
+    PSP_exc_mean = 0.17562
+
     if "eprop" in model_name:
         duration_seq = 300
         eprop_params = {
@@ -86,8 +92,8 @@ if "iaf_psc_delta" in model_name:
         scale_factor = 1.0 - eprop_params["kappa"]  # factor for rescaling due to removal of irregular spike arrival
         eprop_params["c_reg"] /= scale_factor**2
 
-        #if model_name == "eprop_iaf_adapt":
-        #    eprop_params["adapt_beta"] = 0.0  # adaptation scaling
+        if model_name == "eprop_iaf_adapt":
+            eprop_params["adapt_beta"] = 0.0  # adaptation scaling
 
         if model_name in ["eprop_iaf_psc_delta", "eprop_iaf_psc_delta_adapt"]:
             #?eprop_params["V_reset"] = -0.5  # mV, reset membrane voltage
@@ -98,7 +104,7 @@ if "iaf_psc_delta" in model_name:
     net_dict["neuron_model"] = model_name
     net_dict["neuron_params"] = neuron_params
     net_dict["V0_type"] = "optimized"
-    net_dict["PSP_exc_mean"] = 0.17562
+    net_dict["PSP_exc_mean"] = PSP_exc_mean
 
 ## set pre-simulation time to 0 and desired simulation time
 sim_dict["t_presim"] = ref_dict["t_presim"]
