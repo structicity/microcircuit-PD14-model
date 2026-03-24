@@ -71,7 +71,7 @@ class Network:
                 if self.sim_dict["overwrite_files"]:
                     message += " Old data will be overwritten."
             else:
-                os.mkdir(self.data_path)
+                os.makedirs(self.data_path)
                 message = "  Directory has been created."
             print("Data will be written to: {}\n{}\n".format(self.data_path, message))
 
@@ -269,19 +269,36 @@ Storing simulation metadata to {self.sim_dict['data_path']}
 
         # adjust weights and DC amplitude if the indegree is scaled
         if self.net_dict["K_scaling"] != 1:
-            PSC_matrix_mean, PSC_ext, DC_amp = helpers.adjust_weights_and_input_to_synapse_scaling(
-                self.net_dict["full_num_neurons"],
-                full_num_synapses,
-                self.net_dict["K_scaling"],
-                PSC_matrix_mean,
-                PSC_ext,
-                self.net_dict["neuron_params"]["tau_syn"],
-                self.net_dict["full_mean_rates"],
-                DC_amp,
-                self.net_dict["bg_input_type"],
-                self.net_dict["bg_rate"],
-                self.net_dict["K_ext"],
-            )
+            if "iaf_psc_exp" in self.net_dict["neuron_model"]:
+                PSC_matrix_mean, PSC_ext, DC_amp = helpers.adjust_weights_and_input_to_synapse_scaling(
+                    self.net_dict["full_num_neurons"],
+                    full_num_synapses,
+                    self.net_dict["K_scaling"],
+                    PSC_matrix_mean,
+                    PSC_ext,
+                    self.net_dict["neuron_params"]["tau_syn"],
+                    self.net_dict["full_mean_rates"],
+                    DC_amp,
+                    self.net_dict["bg_input_type"],
+                    self.net_dict["bg_rate"],
+                    self.net_dict["K_ext"],
+                )
+            elif "iaf_psc_delta" in self.net_dict["neuron_model"]:
+                PSC_matrix_mean, PSC_ext, DC_amp = helpers.adjust_weights_and_input_to_synapse_scaling_delta(
+                    self.net_dict["full_num_neurons"],
+                    full_num_synapses,
+                    self.net_dict["K_scaling"],
+                    PSC_matrix_mean,
+                    PSC_ext,
+                    self.net_dict["neuron_params"]["C_m"],
+                    self.net_dict["full_mean_rates"],
+                    DC_amp,
+                    self.net_dict["bg_input_type"],
+                    self.net_dict["bg_rate"],
+                    self.net_dict["K_ext"],
+                )
+            else:
+                raise ValueError(f"{self.net_dict['neuron_model']} not implemented")
 
             # check if all populations are supra-threshold with the changed DC input
             if self.net_dict["bg_input_type"] == "dc":
