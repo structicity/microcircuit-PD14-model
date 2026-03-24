@@ -157,10 +157,10 @@ def dc_input_compensating_poisson_delta(bg_rate, K_ext, C_m, PSC_ext):
         Rate of external Poisson generators (in spikes/s).
     K_ext
         External indegrees.
-    tau_syn
-        Synaptic time constant (in ms).
+    C_m
+        Membrane capacitance (in pF).
     PSC_ext
-        Weight of external connections (in pA).
+        Weight of external delta connections (in mV).
 
     Returns
     -------
@@ -241,6 +241,79 @@ def adjust_weights_and_input_to_synapse_scaling(
         DC_amp_new += 0.001 * tau_syn * (1.0 - np.sqrt(K_scaling)) * input_ext
 
     return PSC_matrix_new, PSC_ext_new, DC_amp_new
+
+
+def adjust_weights_and_input_to_synapse_scaling_delta(
+    full_num_neurons,
+    full_num_synapses,
+    K_scaling,
+    mean_PSP_matrix,
+    PSP_ext,
+    C_m,
+    full_mean_rates,
+    DC_amp,
+    bg_input_type,
+    bg_rate,
+    K_ext,
+):
+    """Adjusts PSP weights and external input to scaling of indegrees for
+    ``iaf_psc_delta``-type neurons.
+
+    For delta synapses, NEST interprets synaptic weights as instantaneous
+    membrane jumps (in mV). To preserve input statistics under indegree scaling,
+    PSP weights are scaled by ``1/sqrt(K_scaling)`` and DC compensation is added
+    in current units (pA) via the conversion factor ``C_m``.
+
+    Parameters
+    ----------
+    full_num_neurons
+        Total numbers of neurons.
+    full_num_synapses
+        Total numbers of synapses.
+    K_scaling
+        Scaling factor for indegrees.
+    mean_PSP_matrix
+        Weight matrix in mV (voltage jump amplitudes).
+    PSP_ext
+        External weight in mV (voltage jump amplitude).
+    C_m
+        Membrane capacitance (in pF).
+    full_mean_rates
+        Firing rates of the full network (in spikes/s).
+    DC_amp
+        DC input current (in pA).
+    bg_input_type
+        Type of background input, either "poisson" or "dc".
+    bg_rate
+        Firing rate of Poisson generators (in spikes/s).
+    K_ext
+        External indegrees.
+
+    Returns
+    -------
+    PSP_matrix_new
+        Adjusted weight matrix (in mV).
+    PSP_ext_new
+        Adjusted external weight (in mV).
+    DC_amp_new
+        Adjusted DC input (in pA).
+
+    """
+    PSP_matrix_new = mean_PSP_matrix / np.sqrt(K_scaling)
+    PSP_ext_new = PSP_ext / np.sqrt(K_scaling)
+
+    # Recurrent input of full network in voltage-jump units (mV * spikes/s).
+    indegree_matrix = full_num_synapses / full_num_neurons[:, np.newaxis]
+    input_rec = np.sum(mean_PSP_matrix * indegree_matrix * full_mean_rates, axis=1)
+
+    # Convert mean voltage-drive compensation to current via C_m.
+    DC_amp_new = DC_amp + 0.001 * C_m * (1.0 - np.sqrt(K_scaling)) * input_rec
+
+    if bg_input_type == "poisson":
+        input_ext = PSP_ext * K_ext * bg_rate
+        DC_amp_new += 0.001 * C_m * (1.0 - np.sqrt(K_scaling)) * input_ext
+
+    return PSP_matrix_new, PSP_ext_new, DC_amp_new
 
 def compute_rheo_base_current(V_th, E_L, C_m, tau_m):
     """Computes the rheobase current for a given threshold voltage, resting potential, membrane capacitance, and membrane time constant.
