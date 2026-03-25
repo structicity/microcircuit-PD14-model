@@ -104,7 +104,7 @@ net_dict = {
     # inhibitory connections
     "delay_rel_std": 0.5,
     # type of constant background (cortico-cortical) input
-    "bg_input_type": "poisson", # 'poisson' or 'dc'
+    "bg_input_type": "dc", # 'poisson' or 'dc'
     # indegree of external connections to the different populations (same order
     # as in 'populations')
     "K_ext": np.array([1600, 1500, 2100, 1900, 2000, 1900, 2900, 2100]),
