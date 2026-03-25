@@ -501,12 +501,12 @@ Storing simulation metadata to {self.sim_dict['data_path']}
 
         self.thalamic_population = nest.Create("parrot_neuron", n=self.stim_dict["num_th_neurons"])
 
-        self.poisson_th = nest.Create("poisson_generator")
+        """self.poisson_th = nest.Create("poisson_generator")
         self.poisson_th.set(
             rate=self.stim_dict["th_rate"],
             start=self.stim_dict["th_start"],
             stop=(self.stim_dict["th_start"] + self.stim_dict["th_duration"]),
-        )
+        )"""
 
     def __create_dc_stim_input(self):
         """Creates DC generators for external stimulation if specified
@@ -613,7 +613,7 @@ Storing simulation metadata to {self.sim_dict['data_path']}
             print("Connecting thalamic input.")
 
         # connect Poisson input to thalamic population (Connection 1)
-        nest.Connect(self.poisson_th, self.thalamic_population) #(gen_spk_in, nrns_in)
+        nest.Connect(self.poisson_th, self.thalamic_population, conn_spec={"rule": "one_to_one"}) #(gen_spk_in, nrns_in) #TODO change from all_to_all to be one_to_one
 
         # connect thalamic population to neuronal populations (Connection 2)
         for i, target_pop in enumerate(self.pops):
