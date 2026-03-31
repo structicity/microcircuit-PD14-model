@@ -32,6 +32,10 @@ from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument("--seed", type=int, default=12345)
 parser.add_argument("--path", type=str, default="data")
+parser.add_argument("--model_name", type=str, default=ref_dict["model_name"])
+parser.add_argument("--N_scaling", type=float, default=ref_dict['N_scaling'])
+parser.add_argument("--K_scaling", type=float, default=ref_dict['K_scaling'])
+parser.add_argument("--t_sim", type=float, default=ref_dict["t_sim"])
 args = parser.parse_args()
 
 path = Path(args.path)
@@ -43,14 +47,19 @@ sim_dict.update(
 )
 
 #####################
+model_name = args.model_name
 #model_name = "iaf_psc_exp"
 #model_name = "iaf_psc_delta"
-model_name = "eprop_iaf_psc_delta"
+#model_name = "eprop_iaf_psc_delta"
 
 ## set network scale
-scaling_factor = ref_dict['scaling_factor']
-net_dict["N_scaling"] = scaling_factor
-net_dict["K_scaling"] = scaling_factor
+net_dict["N_scaling"] = args.N_scaling
+net_dict["K_scaling"] = args.K_scaling
+
+print(model_name)
+print(net_dict["N_scaling"])
+print(net_dict["K_scaling"])
+print(args.t_sim)
 
 # We can comment the below code to use the default params
 if "iaf_psc_exp" in model_name:
@@ -108,7 +117,7 @@ if "iaf_psc_delta" in model_name:
 
 ## set pre-simulation time to 0 and desired simulation time
 sim_dict["t_presim"] = ref_dict["t_presim"]
-sim_dict["t_sim"] = ref_dict["t_sim"] # simulate for 10.0s
+sim_dict["t_sim"] = args.t_sim # simulate for 10.0s
 
 ## set number of local number of threads
 sim_dict["local_num_threads"] = ref_dict['local_num_threads']

@@ -32,20 +32,28 @@ from microcircuit.stimulus_params import default_stim_dict as stim_dict
 ## import analysis parameters
 from params import params as ref_dict
 
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+parser.add_argument("--data_id", type=str, default="data_id")
+parser.add_argument("--N_scaling", type=float, default=ref_dict['N_scaling'])
+parser.add_argument("--K_scaling", type=float, default=ref_dict['K_scaling'])
+parser.add_argument("--t_sim", type=float, default=ref_dict["t_sim"])
+args = parser.parse_args()
+
 #####################
 populations = net_dict['populations'] # list of populations
 #####################
 
 ## set network scale
-scaling_factor = ref_dict['scaling_factor']
-net_dict["N_scaling"] = scaling_factor
-net_dict["K_scaling"] = scaling_factor
+net_dict["N_scaling"] = args.N_scaling
+net_dict["K_scaling"] = args.K_scaling
 
 random.seed( ref_dict['seed_subsampling'] )  # set seed for reproducibility
 
 seeds = ref_dict['RNG_seeds'] # list of seeds
 
-sim_dict['data_path'] = 'data/data_T' + str( int( ref_dict['t_sim'] * 1.0e-3 ) ) + 's_iafpscdelta/'
+sim_dict['data_path'] = 'data/data_T' + str( int( args.t_sim * 1.0e-3 ) ) + 's_' + args.data_id + '/'
 
 #######################################################
 # Define auxiliary functions to analyze and plot data #

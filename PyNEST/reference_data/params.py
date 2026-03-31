@@ -15,17 +15,21 @@ params = {
     #########################
     # Adapted model and simulation parameters
     #########################
+    "model_name": "iaf_psc_exp",
+    #"model_name": "iaf_psc_delta",  
+    #"model_name": "eprop_iaf_psc_delta",
     # scaling factor of the network
-    #'scaling_factor': 0.2,
-    'scaling_factor': 1.0,    
+    'N_scaling': 0.2,
+    'K_scaling': 0.2,
+    #'scaling_factor': 1.0,    
     # RNG seeds for generating model relizations
     'RNG_seeds': ['12345' + str(i) for i in range(0, 10)],
     # pre-simulation time (for network stabilization) in ms
     't_presim': 500.0,
     # simulation time in ms
-    't_sim': 1e+3,    
-    #'t_sim': 1.0e+4,
-    #'t_sim': 9.0e+5,
+    't_sim': 1e+3,   # 1 seconds 
+    #'t_sim': 1.0e+4, # 10 seconds
+    #'t_sim': 9.0e+5, # 900 seconds
     # local number of threads
     'local_num_threads': 64,
     ##
@@ -37,7 +41,7 @@ params = {
     # RNG seed for random neuron subsampling (for CC anlysis)
     'seed_subsampling': 12345,
     # number of neurons per population for pairwise statistics
-    'subsample_size': 250, 
+    'subsample_size': 150, 
     # bin size for generation of spike-count signals (for CC analysis)
     'binsize': 2.0,
     ##

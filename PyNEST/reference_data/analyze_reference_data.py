@@ -36,6 +36,9 @@ from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument("--seed", type=int, default=12345)
 parser.add_argument("--path", type=str, default="data")
+parser.add_argument("--N_scaling", type=float, default=ref_dict['N_scaling'])
+parser.add_argument("--K_scaling", type=float, default=ref_dict['K_scaling'])
+parser.add_argument("--t_sim", type=float, default=ref_dict["t_sim"])
 args = parser.parse_args()
 
 path = Path(args.path)
@@ -52,9 +55,8 @@ populations = net_dict['populations'] # list of populations
 #####################
 
 ## set network scale
-scaling_factor = ref_dict['scaling_factor']
-net_dict["N_scaling"] = scaling_factor
-net_dict["K_scaling"] = scaling_factor
+net_dict["N_scaling"] = args.N_scaling
+net_dict["K_scaling"] = args.K_scaling
 
 random.seed( ref_dict['seed_subsampling'] )  # set seed for reproducibility
 
@@ -81,7 +83,7 @@ def analyze_single_neuron_stats( observable_name: str, func: callable ) -> dict:
     '''
 
     observable = {} # list of single neuron observable [pop][neuron]
-    recording_interval = ( max( ref_dict['t_min'], ref_dict['t_presim'] ), ref_dict['t_presim'] + ref_dict['t_sim'] )
+    recording_interval = ( max( ref_dict['t_min'], ref_dict['t_presim'] ), ref_dict['t_presim'] + args.t_sim )
 
     
     data_path = sim_dict['data_path']
@@ -117,7 +119,7 @@ def analyze_pairwise_stats( observable_name: str, func: callable ) -> dict:
         Dictionary containing the pairwise statistic for all populations.
     '''
 
-    recording_interval = ( max ( ref_dict['t_min'], ref_dict['t_presim'] ), ref_dict['t_presim'] + ref_dict['t_sim'] )
+    recording_interval = ( max ( ref_dict['t_min'], ref_dict['t_presim'] ), ref_dict['t_presim'] + args.t_sim )
 
     #cc_binsize = 2. # in ms
     observable = {}  # list of pairwise spike count correlations [pop][correlation]
