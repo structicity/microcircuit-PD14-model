@@ -1,7 +1,7 @@
 import os
 from microcircuit import helpers
 
-from plot_reference_analysis import compute_data_dist
+from plot_reference_analysis import compute_data_dist, sim_dict
 
 from params import params as ref_dict
 
@@ -26,6 +26,7 @@ def plot_data_dists(
         axes_hist: matplotlib.axes=None,
         fig_ks: matplotlib.figure=None,
         axes_ks:  matplotlib.axes=None,
+        data_index: int=0,
         ) -> None:
     '''
     Plots histograms and KS-distance distributions for different populations.
@@ -90,12 +91,12 @@ def plot_data_dists(
 
         n_seeds = len( seeds )
         grayscale = np.linspace( 0.2, 0.8, n_seeds )
-        colors = [(g, g, g) for g in grayscale]
+        
+        # colors = [(g, g, g) for g in grayscale]
+        #for cseed in range( n_seeds ):
+        #    ax_hist.plot( bin_centers, pop_rel_hists[cseed], '-', color=colors[-1], label=f'Seed {cseed}' )
 
-        for cseed in range( n_seeds ):
-            ax_hist.plot( bin_centers, pop_rel_hists[cseed], '-', color=colors[-1], label=f'Seed {cseed}' )
-
-        ax_hist.plot( bin_centers, pop_mean_hist, 'k--', label='Mean' )
+        ax_hist.plot( bin_centers, pop_mean_hist, '--', label='Mean' )
         ax_hist.fill_between( bin_centers, pop_mean_hist - pop_std_hist, pop_mean_hist + pop_std_hist, alpha=0.3 )
 
         # set x and y limits
@@ -113,7 +114,7 @@ def plot_data_dists(
             if observable_name == 'spike_ccs':
                 #x_hist.set_xlim(x_min_hist, x_max_hist)
                 ax_hist.set_xticks([x_min_hist/2, 0, x_max_hist/2], [r'$%.2f$' % (x_min_hist/2), r'$0$', r'$%.2f$' % (x_max_hist/2)] )
-
+        
         #ax_hist.set_ylim( 0, np.max( pop_mean_hist ) * 1.2 )
         
         ks_values = observable_ks_distances[pop]["list"]
@@ -126,10 +127,11 @@ def plot_data_dists(
         if mean is not None:
             textbox += r'\\{\tiny $D_\mathsf{KS} = %.2f$}' % mean
         
-            ax_ks.hist( ks_values, bins=n_seeds, color='gray', alpha=0.5 )
-            ax_ks.axvline( mean, color='red', linestyle='--', label='Mean KS-distance' )
-            ax_ks.axvline( mean + std, color='blue', linestyle='--', label='Mean + Std' )
-            ax_ks.axvline( mean - std, color='blue', linestyle='--', label='Mean - Std' )
+            color = f'C{data_index}'
+            ax_ks.hist( ks_values, bins=n_seeds, color=color, alpha=0.5 )
+            ax_ks.axvline( mean, color=color, linestyle='-', label='Mean KS-distance' )
+            ax_ks.axvline( mean + std, color=color, alpha=0.6, linestyle='--', label='Mean + Std' )
+            ax_ks.axvline( mean - std, color=color, alpha=0.6, linestyle='--', label='Mean - Std' )
 
         ax_hist.text( 0.95, 0.95, textbox, transform=ax_hist.transAxes, fontsize=8,
                 verticalalignment='top', horizontalalignment='right' )
@@ -138,12 +140,12 @@ def plot_data_dists(
             
         if cpop % 2 == 0:
             ax_hist.set_ylabel( r'rel. freq.' )
-            ax_hist.set_yticks( [] )
+            #ax_hist.set_yticks( [] )
             ax_ks.set_ylabel( r'rel. freq.' )
-            ax_ks.set_yticks( [] )
+            #ax_ks.set_yticks( [] )
         else:
             ax_hist.set_yticks( [] )
-    
+            ax_ks.set_yticks( [] )
     #ax_ks.set_xlim( 0, ks_max * 1.1)
     ax_ks.set_xticks( [0, ks_max / 2], [r'$0$', r'$%.2f$' % (ks_max / 2)] )
 
@@ -181,7 +183,9 @@ def main(data_paths, ref_dicts):
     # spike_ccs
     spkccs_fig_dict = create_fig()
    
-    for data_path, ref_dict in zip(data_paths, ref_dicts):
+    for data_index, (data_path, ref_dict) in enumerate(zip(data_paths, ref_dicts)):
+        # Reuse compute_data_dist while writing stats into the active dataset folder.
+        sim_dict['data_path'] = data_path if data_path.endswith('/') else f"{data_path}/"
         # Read in the data from json files
         rates = helpers.json2dict( f'{data_path}rates.json' )
         spike_cvs = helpers.json2dict( f'{data_path}spike_cvs.json' )
@@ -198,11 +202,11 @@ def main(data_paths, ref_dicts):
 
         # Plot distributions and KS distances
         plot_data_dists( 'rate', r'\begin{center} time averaged single neuron\\firing rate (s$^{-1}$) \end{center}', rate_hist_mat, rate_best_bins, rate_ks_distances, observable_limits=ref_dict['rate_lim'],
-            **rates_fig_dict)
+            data_index=data_index, **rates_fig_dict)
         plot_data_dists( 'spike_cvs', r'spike irregularity (ISI CV)', spike_cvs_hist_mat, spike_cvs_best_bins, spike_cvs_ks_distances, observable_limits=ref_dict['cv_lim'],
-            **spkcsv_fig_dict )
+            data_index=data_index, **spkcsv_fig_dict )
         plot_data_dists( 'spike_ccs', r'\begin{center} spike correlation coefficient\\(bin size $%.1f$ ms) \end{center}' % ref_dict['binsize'], spike_ccs_hist_mat, spike_ccs_best_bins, spike_ccs_ks_distances, observable_limits=ref_dict['cc_lim'],
-            **spkccs_fig_dict)
+            data_index=data_index, **spkccs_fig_dict)
 
     folder_name = "-".join(list(map(lambda v: v.split("/")[-2], data_paths)))
     store_path = f"./data/data_comparison/{folder_name}/"
@@ -211,6 +215,17 @@ def main(data_paths, ref_dicts):
     for fig_dict, observable_name in [(rates_fig_dict, "rate"), (spkcsv_fig_dict, "spike_cvs"), (spkccs_fig_dict, "spike_ccs")]:
         fig_hist = fig_dict["fig_hist"]
         fig_ks = fig_dict["fig_ks"]
+        data_paths_title = f'{data_paths[0].split("/")[-2]} vs {data_paths[1].split("/")[-2]}'
+
+        # Create legend for dataset colors
+        from matplotlib.patches import Patch
+        legend_elements = [Patch(facecolor='C0', label=data_paths[0].split("/")[-2].split("_")[4]),
+                          Patch(facecolor='C1', label=data_paths[1].split("/")[-2].split("_")[4])]
+        fig_ks.legend(handles=legend_elements, loc='lower right')
+        fig_hist.legend(handles=legend_elements, loc='lower right')
+
+        fig_hist.suptitle(f"{observable_name} \n {data_paths_title}")
+        fig_ks.suptitle(f"{observable_name} \n {data_paths_title}")
         fig_hist.savefig(f'{store_path}{observable_name}_distributions_comp.pdf',
                     bbox_inches="tight", pad_inches=0.02)
         fig_ks.savefig(f'{store_path}{observable_name}_KS_distances_comp.pdf',
@@ -223,7 +238,7 @@ def main(data_paths, ref_dicts):
     print( f"Current memory consumption: {mem:.2f} MB" )
 
 if __name__ == "__main__":
-    data_paths = ["./data/data_T10s/", "./data/data_T10s_iafpscdelta/"]
+    data_paths = ["./data/data_T10s_iaf_psc_delta_downscaled0.20.2/", "./data/data_T10s_iaf_psc_delta_downscaled0.21.0/"]
     ref_dicts = [ref_dict, ref_dict]
     main(data_paths=data_paths, ref_dicts=ref_dicts)
     plt.show()
