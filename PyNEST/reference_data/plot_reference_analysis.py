@@ -31,15 +31,24 @@ from microcircuit.stimulus_params import default_stim_dict as stim_dict
 ## import analysis parameters
 from params import params as ref_dict
 
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+parser.add_argument("--data_id", type=str, default="data_id")
+parser.add_argument("--N_scaling", type=float, default=ref_dict['N_scaling'])
+parser.add_argument("--K_scaling", type=float, default=ref_dict['K_scaling'])
+parser.add_argument("--t_sim", type=float, default=ref_dict["t_sim"])
+args = parser.parse_args()
+
 #####################
 populations = net_dict['populations'] # list of populations
 #####################
 
 ## set network scale
-scaling_factor = ref_dict['scaling_factor']
-net_dict["N_scaling"] = scaling_factor
-net_dict["K_scaling"] = scaling_factor
-sim_dict['data_path'] = 'data/data_T' + str( int( ref_dict['t_sim'] * 1.0e-3 ) ) + 's_iafpscdelta/'
+net_dict["N_scaling"] = args.N_scaling
+net_dict["K_scaling"] = args.K_scaling
+
+sim_dict['data_path'] = 'data/data_T' + str( int( args.t_sim * 1.0e-3 ) ) + 's_' + args.data_id + '/'
 
 ## set path for storing spike data and figures
 ### TODO revise data path
@@ -287,9 +296,9 @@ def plot_data_dists( observable_name: str, x_label: str, observable_hist_mat: di
                bbox_inches="tight", pad_inches=0.02)
     
     # save figures for README.md
-    fig_hist.savefig(f'figures/{observable_name}_distributions_T' + str( int( ref_dict['t_sim'] * 1.0e-3 ) ) + 's.png',
+    fig_hist.savefig(f'figures/{observable_name}_distributions_T' + str( int( args.t_sim * 1.0e-3 ) ) + 's.png',
                  bbox_inches="tight", pad_inches=0.02)
-    fig_ks.savefig(f'figures/{observable_name}_KS_distances_T' + str( int( ref_dict['t_sim'] * 1.0e-3 ) ) + 's.png',
+    fig_ks.savefig(f'figures/{observable_name}_KS_distances_T' + str( int( args.t_sim * 1.0e-3 ) ) + 's.png',
                bbox_inches="tight", pad_inches=0.02)
     
 
