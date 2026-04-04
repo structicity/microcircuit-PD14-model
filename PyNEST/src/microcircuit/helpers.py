@@ -363,7 +363,6 @@ def plot_raster(path, name, begin, end, N_scaling):
     None
 
     """
-
     fig_size = (4,3) ## figure size (inch)
     ms = 1           ## marker size
     alpha = 1
@@ -392,7 +391,7 @@ def plot_raster(path, name, begin, end, N_scaling):
     rcParams['legend.framealpha'] = 1.0
     rcParams['legend.edgecolor']  = 'k'
 
-    plt.figure(1)
+    plt.figure()
     plt.clf()
     
     stp = 1
@@ -504,7 +503,7 @@ def boxplot(path, populations):
     rcParams['legend.framealpha'] = 1.0
     rcParams['legend.edgecolor']  = 'k'
 
-    plt.figure(1)
+    plt.figure()
     plt.clf()
     
     bp = plt.boxplot(
