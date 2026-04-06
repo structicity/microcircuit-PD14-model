@@ -73,6 +73,7 @@ if "iaf_psc_delta" in model_name:
         "tau_m": net_dict["neuron_params"]["tau_m"],
         "V_th": net_dict["neuron_params"]["V_th"],
         "V_reset": net_dict["neuron_params"]["V_reset"],
+        "t_ref": net_dict["neuron_params"]["t_ref"],
         "V0_mean": net_dict["neuron_params"]["V0_mean"],
         "V0_std": net_dict["neuron_params"]["V0_std"],
     }
@@ -88,11 +89,11 @@ if "iaf_psc_delta" in model_name:
             "eprop_isi_trace_cutoff": 100,
             "f_target": 10.0,  # spikes/s, target firing rate for firing rate regularization
             "gamma": 0.5,  # height scaling of the pseudo-derivative
-            "I_e": 0.0,
+            #?"I_e": 0.0,
             "kappa": 0.99,  # low-pass filter of the eligibility trace
             "kappa_reg": 0.99,  # low-pass filter of the firing rate for regularization
             "surrogate_gradient_function": "piecewise_linear",  # surrogate gradient / pseudo-derivative function
-            "t_ref": 0.0,  # ms, duration of refractory period
+            #?"t_ref": 0.0,  # ms, duration of refractory period
             #?"tau_m": 30.0,
             #?"V_m": 0.0,
             #?"V_th": 0.6,  # mV, spike threshold membrane voltage
