@@ -374,29 +374,34 @@ Storing simulation metadata to {self.sim_dict['data_path']}
         self.pops = []
         for i in np.arange(self.num_pops):
             population = nest.Create(self.net_dict["neuron_model"], self.num_neurons[i])
-            if "iaf_psc_exp" == self.net_dict["neuron_model"]:
+            if "iaf_psc_exp" in self.net_dict["neuron_model"]:
                 population.set(
+                    E_L=self.net_dict["neuron_params"]["E_L"],
+                    C_m=self.net_dict["neuron_params"]["C_m"],
+                    tau_m=self.net_dict["neuron_params"]["tau_m"],
+                    V_th=self.net_dict["neuron_params"]["V_th"],
+                    V_reset=self.net_dict["neuron_params"]["V_reset"],
+                    t_ref=self.net_dict["neuron_params"]["t_ref"],
                     tau_syn_ex=self.net_dict["neuron_params"]["tau_syn"],
                     tau_syn_in=self.net_dict["neuron_params"]["tau_syn"],
+                    I_e=self.DC_amp[i],
+                )
+            elif "iaf_psc_delta" in self.net_dict["neuron_model"]:
+                population.set(
                     E_L=self.net_dict["neuron_params"]["E_L"],
+                    C_m=self.net_dict["neuron_params"]["C_m"],
+                    tau_m=self.net_dict["neuron_params"]["tau_m"],
                     V_th=self.net_dict["neuron_params"]["V_th"],
                     V_reset=self.net_dict["neuron_params"]["V_reset"],
                     t_ref=self.net_dict["neuron_params"]["t_ref"],
                     I_e=self.DC_amp[i],
                 )
-            elif "iaf_psc_delta" == self.net_dict["neuron_model"]:
+            else:
+                raise ValueError(f"{self.net_dict['neuron_model']} not implemented")
+            
+            if "eprop" in self.net_dict["neuron_model"]:
                 population.set(
-                    E_L=self.net_dict["neuron_params"]["E_L"],
-                    V_th=self.net_dict["neuron_params"]["V_th"],
-                    V_reset=self.net_dict["neuron_params"]["V_reset"],
-                    I_e=self.DC_amp[i],
-                )
-            elif "eprop_iaf_psc_delta" == self.net_dict["neuron_model"]:
-                population.set(
-                    E_L=self.net_dict["neuron_params"]["E_L"],
-                    V_th=self.net_dict["neuron_params"]["V_th"],
-                    V_reset=self.net_dict["neuron_params"]["V_reset"],
-                    beta=self.net_dict["neuron_params"]["t_ref"],
+                    beta=self.net_dict["neuron_params"]["beta"],
                     c_reg=self.net_dict["neuron_params"]["c_reg"],
                     eprop_isi_trace_cutoff=self.net_dict["neuron_params"]["eprop_isi_trace_cutoff"],
                     f_target=self.net_dict["neuron_params"]["f_target"],
@@ -404,11 +409,7 @@ Storing simulation metadata to {self.sim_dict['data_path']}
                     kappa=self.net_dict["neuron_params"]["kappa"],
                     kappa_reg=self.net_dict["neuron_params"]["kappa_reg"],
                     surrogate_gradient_function=self.net_dict["neuron_params"]["surrogate_gradient_function"],
-                    t_ref=self.net_dict["neuron_params"]["t_ref"],
-                    I_e=self.DC_amp[i],
                 )
-            else:
-                raise ValueError(f"{self.net_dict['neuron_model']} not implemented")
 
             if self.net_dict["V0_type"] == "optimized":
                 population.set(
