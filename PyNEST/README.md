@@ -27,14 +27,27 @@ The `microcircuit` python package can be installed by one of the following metho
     ```bash
     pip install microcircuit
     ```
+    
+    Optionally, you may want to install additional dependencies by using extra flags:
+    | Option | Flag |
+    |--|--|
+    | runtime testing | `test` |
+    | development tools | `dev` |
+    | documentation build tools | `doc` |
+   
+    Example: 
+  
+    ```bash
+    pip install microcircuit[dev,doc] 
+    ```
 
-3) Clone the repository and install the python package from the local sources:
+1) Clone the repository and install the python package from the local sources:
    ```bash
     git clone https://github.com/inm-6/microcircuit-PD14-model
     pip install microcircuit-PD14-model/PyNEST
     ```
   
-6) Install the package from the repository without cloning the entire repository:
+1) Install the package from the repository without cloning the entire repository:
     ```
     pip install "git+https://github.com/INM-6/microcircuit-PD14-model.git/#egg=microcircuit&subdirectory=PyNEST"
     ```
@@ -56,13 +69,8 @@ The `microcircuit` python package can be installed by one of the following metho
   make
   make install
   ```
-<<<<<<< HEAD
-  pip install "git+https://github.com/INM-6/microcircuit-PD14-model.git/#egg=microcircuit&subdirectory=PyNEST"
-  ```
-=======
 - Python 3.x
 - docopt-ng, matplotlib, numpy, psutil, ruamel.yaml, scipy (handled by python package dependencies)
->>>>>>> upstream/main
 
 ## Software requirements
 
@@ -86,11 +94,16 @@ The `microcircuit` python package can be installed by one of the following metho
 
 ## Testing
 
+To enable testing, make sure that the microcircuit package is installed with testing dependencies:
+```bash
+pip install microcircuit[test]
+```
+
 Executing
 ```bash
 pytest
 ```
-runs the unit test(s) in `microcircuit-PD14-model/PyNEST/tests`.
+in the root directory of the repository `microcircuit-PD14-model` runs the test(s) in `microcircuit-PD14-model/PyNEST/tests`.
 
 ## Usage
 
@@ -101,10 +114,14 @@ import microcircuit
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 See [this example](https://microcircuit-PD14-model.readthedocs.io/en/latest/auto_examples/index.html) for a more detailed illustration of how the package can be used.
 =======
 See [this examples](https://microcircuit-pd14-model.readthedocs.io/en/latest/microcircuit_example.html) for a more detailed illustrations of how the package can be used.
 >>>>>>> upstream/main
+=======
+See [this example](https://microcircuit-pd14-model.readthedocs.io/en/latest/microcircuit_example.html) for a more detailed illustrations of how the package can be used.
+>>>>>>> c4d15ed59eb7ff9120867158d706a1ec2962387f
 
 ## Memory requirements
 
