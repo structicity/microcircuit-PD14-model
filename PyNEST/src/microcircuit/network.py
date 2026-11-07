@@ -407,15 +407,26 @@ Storing simulation metadata to {self.sim_dict['data_path']}
                 raise ValueError(f"{self.net_dict['neuron_model']} not implemented")
             
             if "eprop" in self.net_dict["neuron_model"]:
+                # NEST 3.10 renamed the surrogate gradient parameters: gamma became surrogate_gradient_height and
+                # beta became surrogate_gradient_width = 1 / beta (psi = height * max(0, 1 - |v - v_th| / width))
+                if "surrogate_gradient_height" in nest.GetDefaults(self.net_dict["neuron_model"]):
+                    surrogate_params = {
+                        "surrogate_gradient_height": self.net_dict["neuron_params"]["gamma"],
+                        "surrogate_gradient_width": 1.0 / self.net_dict["neuron_params"]["beta"],
+                    }
+                else:
+                    surrogate_params = {
+                        "beta": self.net_dict["neuron_params"]["beta"],
+                        "gamma": self.net_dict["neuron_params"]["gamma"],
+                    }
                 population.set(
-                    beta=self.net_dict["neuron_params"]["beta"],
                     c_reg=self.net_dict["neuron_params"]["c_reg"],
                     eprop_isi_trace_cutoff=self.net_dict["neuron_params"]["eprop_isi_trace_cutoff"],
                     f_target=self.net_dict["neuron_params"]["f_target"],
-                    gamma=self.net_dict["neuron_params"]["gamma"],
                     kappa=self.net_dict["neuron_params"]["kappa"],
                     kappa_reg=self.net_dict["neuron_params"]["kappa_reg"],
                     surrogate_gradient_function=self.net_dict["neuron_params"]["surrogate_gradient_function"],
+                    **surrogate_params,
                 )
 
             if self.net_dict["V0_type"] == "optimized":
