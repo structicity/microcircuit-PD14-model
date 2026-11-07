@@ -324,10 +324,17 @@ Storing simulation metadata to {self.sim_dict['data_path']}
             num_th_synapses = helpers.num_synapses_from_conn_probs(
                 self.stim_dict["conn_probs_th"], self.stim_dict["num_th_neurons"], self.net_dict["full_num_neurons"]
             )[0]
+            # scale with N_scaling like the recurrent synapses, so each neuron keeps its full-scale thalamic
+            # in-degree; without it the in-degree grows as 1/N_scaling (500 times at N_scaling 0.002)
+            num_th_synapses *= self.net_dict["N_scaling"]
             self.weight_th = self.stim_dict["PSP_th"] * PSC_over_PSP
-            if self.net_dict["K_scaling"] != 1:
-                num_th_synapses *= self.net_dict["K_scaling"]
-                self.weight_th /= np.sqrt(self.net_dict["K_scaling"])
+            # The thalamic in-degree can be scaled apart from the recurrent one; by default both use K_scaling.
+            # Stored back so stim_dict.json records the value used.
+            K_scaling_th = self.stim_dict.get("K_scaling_th", self.net_dict["K_scaling"])
+            self.stim_dict["K_scaling_th"] = K_scaling_th
+            if K_scaling_th != 1:
+                num_th_synapses *= K_scaling_th
+                self.weight_th /= np.sqrt(K_scaling_th)
             self.num_th_synapses = np.round(num_th_synapses).astype(int)
 
         if nest.Rank() == 0:
