@@ -409,7 +409,8 @@ Storing simulation metadata to {self.sim_dict['data_path']}
             if "eprop" in self.net_dict["neuron_model"]:
                 # NEST 3.10 renamed the surrogate gradient parameters: gamma became surrogate_gradient_height and
                 # beta became surrogate_gradient_width = 1 / beta (psi = height * max(0, 1 - |v - v_th| / width))
-                if "surrogate_gradient_height" in nest.GetDefaults(self.net_dict["neuron_model"]):
+                model_defaults = nest.GetDefaults(self.net_dict["neuron_model"])
+                if "surrogate_gradient_height" in model_defaults:
                     surrogate_params = {
                         "surrogate_gradient_height": self.net_dict["neuron_params"]["gamma"],
                         "surrogate_gradient_width": 1.0 / self.net_dict["neuron_params"]["beta"],
@@ -419,6 +420,9 @@ Storing simulation metadata to {self.sim_dict['data_path']}
                         "beta": self.net_dict["neuron_params"]["beta"],
                         "gamma": self.net_dict["neuron_params"]["gamma"],
                     }
+                # NEST >= 3.10 flush events free the e-prop history kept for silent presynaptic neurons
+                if "flush_event_send_interval" in model_defaults and "flush_event_send_interval" in self.net_dict["neuron_params"]:
+                    surrogate_params["flush_event_send_interval"] = self.net_dict["neuron_params"]["flush_event_send_interval"]
                 population.set(
                     c_reg=self.net_dict["neuron_params"]["c_reg"],
                     eprop_isi_trace_cutoff=self.net_dict["neuron_params"]["eprop_isi_trace_cutoff"],
