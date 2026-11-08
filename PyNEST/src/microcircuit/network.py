@@ -523,6 +523,15 @@ Storing simulation metadata to {self.sim_dict['data_path']}
             print("Creating thalamic input for external stimulation.")
 
         self.thalamic_population = nest.Create("parrot_neuron", n=self.stim_dict["num_th_neurons"])
+        # NEST >= 3.10 flush events free the e-prop history kept for silent presynaptic neurons; parrot neurons never
+        # send them by default, so a silent thalamic neuron with e-prop synapses would keep its targets' history
+        if (
+            np.any(np.asarray(self.stim_dict["eprop_fraction_th"]) > 0)
+            and "flush_event_send_interval" in nest.GetDefaults("parrot_neuron")
+            and "flush_event_send_interval" in self.net_dict["neuron_params"]
+        ):
+            self.thalamic_population.set(
+                flush_event_send_interval=self.net_dict["neuron_params"]["flush_event_send_interval"])
 
         """self.poisson_th = nest.Create("poisson_generator")
         self.poisson_th.set(
@@ -638,9 +647,13 @@ Storing simulation metadata to {self.sim_dict['data_path']}
         # connect Poisson input to thalamic population (Connection 1)
         nest.Connect(self.poisson_th, self.thalamic_population, conn_spec={"rule": "one_to_one"}) #(gen_spk_in, nrns_in) #TODO change from all_to_all to be one_to_one
 
-        # connect thalamic population to neuronal populations (Connection 2)
+        # connect thalamic population to neuronal populations (Connection 2), the fraction eprop_fraction_th of the
+        # synapses onto each population as e-prop synapses and the rest static
         for i, target_pop in enumerate(self.pops):
-            conn_dict_th = {"rule": "fixed_total_number", "N": self.num_th_synapses[i]}
+            eprop_fraction_th = self.stim_dict["eprop_fraction_th"][i]
+            num_syn_eprop = np.round(eprop_fraction_th * self.num_th_synapses[i]).astype(int)
+            conn_dict_th = {"rule": "fixed_total_number", "N": self.num_th_synapses[i] - num_syn_eprop}
+            conn_dict_th_eprop = {"rule": "fixed_total_number", "N": num_syn_eprop}
 
             syn_dict_th = {
                 "weight": nest.math.redraw(
@@ -661,7 +674,12 @@ Storing simulation metadata to {self.sim_dict['data_path']}
                 ),
             }
 
-            nest.Connect(self.thalamic_population, target_pop, conn_spec=conn_dict_th, syn_spec=syn_dict_th)
+            syn_dict_th_eprop = {**syn_dict_th, "synapse_model": "eprop_synapse", "delay": nest.resolution} #! Hard coded
+
+            if eprop_fraction_th < 1:
+                nest.Connect(self.thalamic_population, target_pop, conn_spec=conn_dict_th, syn_spec=syn_dict_th)
+            if eprop_fraction_th > 0:
+                nest.Connect(self.thalamic_population, target_pop, conn_spec=conn_dict_th_eprop, syn_spec=syn_dict_th_eprop)
 
     def __connect_dc_stim_input(self):
         """Connects the DC generators to the neuronal populations."""
