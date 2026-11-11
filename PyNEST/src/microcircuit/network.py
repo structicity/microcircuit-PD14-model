@@ -250,7 +250,7 @@ Storing simulation metadata to {self.sim_dict['data_path']}
         PSC_ext = self.net_dict["PSP_exc_mean"] * PSC_over_PSP
 
         # DC input compensates for potentially missing Poisson input
-        if self.net_dict["bg_input_type"] == "poisson":
+        if self.net_dict["bg_input_type"] in ("poisson", None):
             DC_amp = np.zeros(self.num_pops)
         #else:
         elif self.net_dict["bg_input_type"] == "dc":
@@ -313,6 +313,11 @@ Storing simulation metadata to {self.sim_dict['data_path']}
                         warnings.warn(
                             "\nPopulation {} is sub-threshold with downscaled DC input amplitude and may not fire. ".format(pop)
                         )          
+
+        # without background input there is no DC at all, not even the compensation of the downscaled recurrent
+        # input, which assumes the network fires at the full-scale rates
+        if self.net_dict["bg_input_type"] is None:
+            DC_amp = np.zeros(self.num_pops)
 
         # store final parameters as class attributes
         self.weight_matrix_mean = PSC_matrix_mean
