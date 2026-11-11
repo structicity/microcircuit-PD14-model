@@ -250,7 +250,7 @@ Storing simulation metadata to {self.sim_dict['data_path']}
         PSC_ext = self.net_dict["PSP_exc_mean"] * PSC_over_PSP
 
         # DC input compensates for potentially missing Poisson input
-        if self.net_dict["bg_input_type"] == "poisson":
+        if self.net_dict["bg_input_type"] in ("poisson", None):
             DC_amp = np.zeros(self.num_pops)
         #else:
         elif self.net_dict["bg_input_type"] == "dc":
@@ -314,6 +314,11 @@ Storing simulation metadata to {self.sim_dict['data_path']}
                             "\nPopulation {} is sub-threshold with downscaled DC input amplitude and may not fire. ".format(pop)
                         )          
 
+        # without background input there is no DC at all, not even the compensation of the downscaled recurrent
+        # input, which assumes the network fires at the full-scale rates
+        if self.net_dict["bg_input_type"] is None:
+            DC_amp = np.zeros(self.num_pops)
+
         # store final parameters as class attributes
         self.weight_matrix_mean = PSC_matrix_mean
         self.weight_ext = PSC_ext
@@ -324,10 +329,17 @@ Storing simulation metadata to {self.sim_dict['data_path']}
             num_th_synapses = helpers.num_synapses_from_conn_probs(
                 self.stim_dict["conn_probs_th"], self.stim_dict["num_th_neurons"], self.net_dict["full_num_neurons"]
             )[0]
+            # scale with N_scaling like the recurrent synapses, so each neuron keeps its full-scale thalamic
+            # in-degree; without it the in-degree grows as 1/N_scaling (500 times at N_scaling 0.002)
+            num_th_synapses *= self.net_dict["N_scaling"]
             self.weight_th = self.stim_dict["PSP_th"] * PSC_over_PSP
-            if self.net_dict["K_scaling"] != 1:
-                num_th_synapses *= self.net_dict["K_scaling"]
-                self.weight_th /= np.sqrt(self.net_dict["K_scaling"])
+            # The thalamic in-degree can be scaled apart from the recurrent one; by default both use K_scaling.
+            # Stored back so stim_dict.json records the value used.
+            K_scaling_th = self.stim_dict.get("K_scaling_th", self.net_dict["K_scaling"])
+            self.stim_dict["K_scaling_th"] = K_scaling_th
+            if K_scaling_th != 1:
+                num_th_synapses *= K_scaling_th
+                self.weight_th /= np.sqrt(K_scaling_th)
             self.num_th_synapses = np.round(num_th_synapses).astype(int)
 
         if nest.Rank() == 0:
@@ -400,15 +412,30 @@ Storing simulation metadata to {self.sim_dict['data_path']}
                 raise ValueError(f"{self.net_dict['neuron_model']} not implemented")
             
             if "eprop" in self.net_dict["neuron_model"]:
+                # NEST 3.10 renamed the surrogate gradient parameters: gamma became surrogate_gradient_height and
+                # beta became surrogate_gradient_width = 1 / beta (psi = height * max(0, 1 - |v - v_th| / width))
+                model_defaults = nest.GetDefaults(self.net_dict["neuron_model"])
+                if "surrogate_gradient_height" in model_defaults:
+                    surrogate_params = {
+                        "surrogate_gradient_height": self.net_dict["neuron_params"]["gamma"],
+                        "surrogate_gradient_width": 1.0 / self.net_dict["neuron_params"]["beta"],
+                    }
+                else:
+                    surrogate_params = {
+                        "beta": self.net_dict["neuron_params"]["beta"],
+                        "gamma": self.net_dict["neuron_params"]["gamma"],
+                    }
+                # NEST >= 3.10 flush events free the e-prop history kept for silent presynaptic neurons
+                if "flush_event_send_interval" in model_defaults and "flush_event_send_interval" in self.net_dict["neuron_params"]:
+                    surrogate_params["flush_event_send_interval"] = self.net_dict["neuron_params"]["flush_event_send_interval"]
                 population.set(
-                    beta=self.net_dict["neuron_params"]["beta"],
                     c_reg=self.net_dict["neuron_params"]["c_reg"],
                     eprop_isi_trace_cutoff=self.net_dict["neuron_params"]["eprop_isi_trace_cutoff"],
                     f_target=self.net_dict["neuron_params"]["f_target"],
-                    gamma=self.net_dict["neuron_params"]["gamma"],
                     kappa=self.net_dict["neuron_params"]["kappa"],
                     kappa_reg=self.net_dict["neuron_params"]["kappa_reg"],
                     surrogate_gradient_function=self.net_dict["neuron_params"]["surrogate_gradient_function"],
+                    **surrogate_params,
                 )
 
             if self.net_dict["V0_type"] == "optimized":
@@ -501,6 +528,15 @@ Storing simulation metadata to {self.sim_dict['data_path']}
             print("Creating thalamic input for external stimulation.")
 
         self.thalamic_population = nest.Create("parrot_neuron", n=self.stim_dict["num_th_neurons"])
+        # NEST >= 3.10 flush events free the e-prop history kept for silent presynaptic neurons; parrot neurons never
+        # send them by default, so a silent thalamic neuron with e-prop synapses would keep its targets' history
+        if (
+            np.any(np.asarray(self.stim_dict["eprop_fraction_th"]) > 0)
+            and "flush_event_send_interval" in nest.GetDefaults("parrot_neuron")
+            and "flush_event_send_interval" in self.net_dict["neuron_params"]
+        ):
+            self.thalamic_population.set(
+                flush_event_send_interval=self.net_dict["neuron_params"]["flush_event_send_interval"])
 
         """self.poisson_th = nest.Create("poisson_generator")
         self.poisson_th.set(
@@ -616,9 +652,13 @@ Storing simulation metadata to {self.sim_dict['data_path']}
         # connect Poisson input to thalamic population (Connection 1)
         nest.Connect(self.poisson_th, self.thalamic_population, conn_spec={"rule": "one_to_one"}) #(gen_spk_in, nrns_in) #TODO change from all_to_all to be one_to_one
 
-        # connect thalamic population to neuronal populations (Connection 2)
+        # connect thalamic population to neuronal populations (Connection 2), the fraction eprop_fraction_th of the
+        # synapses onto each population as e-prop synapses and the rest static
         for i, target_pop in enumerate(self.pops):
-            conn_dict_th = {"rule": "fixed_total_number", "N": self.num_th_synapses[i]}
+            eprop_fraction_th = self.stim_dict["eprop_fraction_th"][i]
+            num_syn_eprop = np.round(eprop_fraction_th * self.num_th_synapses[i]).astype(int)
+            conn_dict_th = {"rule": "fixed_total_number", "N": self.num_th_synapses[i] - num_syn_eprop}
+            conn_dict_th_eprop = {"rule": "fixed_total_number", "N": num_syn_eprop}
 
             syn_dict_th = {
                 "weight": nest.math.redraw(
@@ -639,7 +679,12 @@ Storing simulation metadata to {self.sim_dict['data_path']}
                 ),
             }
 
-            nest.Connect(self.thalamic_population, target_pop, conn_spec=conn_dict_th, syn_spec=syn_dict_th)
+            syn_dict_th_eprop = {**syn_dict_th, "synapse_model": "eprop_synapse", "delay": nest.resolution} #! Hard coded
+
+            if eprop_fraction_th < 1:
+                nest.Connect(self.thalamic_population, target_pop, conn_spec=conn_dict_th, syn_spec=syn_dict_th)
+            if eprop_fraction_th > 0:
+                nest.Connect(self.thalamic_population, target_pop, conn_spec=conn_dict_th_eprop, syn_spec=syn_dict_th_eprop)
 
     def __connect_dc_stim_input(self):
         """Connects the DC generators to the neuronal populations."""

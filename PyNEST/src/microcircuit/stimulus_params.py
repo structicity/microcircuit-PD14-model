@@ -53,6 +53,9 @@ default_stim_dict = {
     "delay_th_mean": 1.5,
     # relative standard deviation of the thalamic delay (in ms)
     "delay_th_rel_std": 0.5,
+    # fraction of the thalamic synapses onto each population that are e-prop synapses, the rest are static
+    # (same order as in 'populations' in 'net_dict')
+    "eprop_fraction_th": np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]),
     # optional transient DC input
     # turn transient DC input pulse on or off (True or False)
     "dc_transient": False,
